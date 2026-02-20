@@ -1,43 +1,46 @@
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Building2, Plus } from 'lucide-react';
+import { Building2, ArrowRight } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
-import { AdminPHView } from '../components/dashboard/AdminPHView';
 import { ResidentView } from '../components/dashboard/ResidentView';
 import { ProviderView } from '../components/dashboard/ProviderView';
 import { ConfiguracionPage } from './ConfiguracionPage';
 import { UserManagement } from '../components/UserManagement';
+import { AdminUHView } from '../components/dashboard/AdminUHView';
+import LoadingScreen from '../components/LoadingScreen';
 
 const DashboardHome = () => {
     const { role, propertyId } = useAuth();
     const navigate = useNavigate();
 
-    // New User Flow: No property assigned yet
-    if (!propertyId && role !== 'superadmin') {
+    // New User Flow: No property assigned yet for admin_uh
+    if (!propertyId && role === 'admin_uh') {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animate-mantty-fade-in">
-                <div className="w-24 h-24 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-6">
-                    <Building2 className="w-10 h-10 text-slate-400" />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-mantty-fade-in">
+                <div className="w-20 h-20 bg-mantty-primary/10 rounded-2xl flex items-center justify-center mb-6">
+                    <Building2 className="w-10 h-10 text-mantty-primary" />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">¡Hola! Estás a un paso.</h2>
-                <p className="text-slate-500 max-w-md mb-8">
-                    Aún no tienes una Unidad Habitacional configurada. Crea tu primera PH para comenzar a administrar.
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                    Configuración Requerida
+                </h2>
+                <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto mb-8 font-medium">
+                    Aún no tienes una Unidad Habitacional Remanufactura configurada. Crea tu primera UH para comenzar a administrar.
                 </p>
                 <button
                     onClick={() => navigate('/onboarding')}
-                    className="px-8 py-4 rounded-2xl mantty-gradient text-white font-bold shadow-xl shadow-mantty-primary/20 hover:scale-105 transition-transform flex items-center gap-2"
+                    className="px-8 py-3 rounded-xl mantty-gradient text-white font-bold hover:opacity-90 transition-all shadow-lg shadow-mantty-primary/20 flex items-center gap-2 group"
                 >
-                    <Plus className="w-5 h-5" />
-                    Configurar mi primera PH
+                    Configurar mi primera UH
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
             </div>
         );
     }
 
     switch (role) {
-        case 'superadmin':
         case 'admin_uh':
-            return <AdminPHView />;
+        case 'superadmin':
+            return <AdminUHView />;
         case 'residente':
             return <ResidentView />;
         case 'proveedor':
@@ -51,7 +54,11 @@ const DashboardHome = () => {
     }
 };
 
-const DashboardPage = () => {
+export const DashboardPage = () => {
+    const { isLoading: authLoading } = useAuth();
+
+    if (authLoading) return <LoadingScreen />;
+
     return (
         <DashboardLayout>
             <Routes>

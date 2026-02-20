@@ -153,7 +153,13 @@ export const NotificationBell = () => {
                                                 {n.message}
                                             </p>
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                                                {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: es })}
+                                                {n.created_at ? (() => {
+                                                    try {
+                                                        return formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: es });
+                                                    } catch (e) {
+                                                        return 'hace un momento';
+                                                    }
+                                                })() : 'hace un momento'}
                                             </p>
                                         </div>
                                         {!n.is_read && (

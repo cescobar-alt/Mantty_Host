@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { Building2, MapPin, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
+import { Building2, MapPin, Loader2, ArrowRight } from 'lucide-react';
 
 const OnboardingPage = () => {
-    const { refreshProfile, user } = useAuth();
+    const { user, refreshProfile } = useAuth();
     const navigate = useNavigate();
-    const [isLoading, setIsLoading] = useState(false);
-
-    const [phData, setPhData] = useState({
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [uhData, setUhData] = useState({
         name: '',
         address: '',
         city: '',
@@ -21,103 +20,108 @@ const OnboardingPage = () => {
         e.preventDefault();
         if (!user) return;
 
-        setIsLoading(true);
+        setLoading(true);
+        setError(null);
+
         try {
-            // 1. Create the Property Horizontal (PH) via Edge Function
-            const { data, error } = await supabase.functions.invoke('create-ph', {
+            // 1. Create the Unidad Habitacional (UH) via Edge Function
+            const { data, error } = await supabase.functions.invoke('create-uh', {
                 body: {
-                    name: phData.name,
-                    address: phData.address,
-                    city: phData.city,
-                    phone: phData.phone
+                    name: uhData.name,
+                    address: uhData.address,
+                    city: uhData.city,
+                    phone: uhData.phone
                 }
             });
 
             if (error) throw error;
-            if (data.error) throw new Error(data.error);
+            console.log('UH created:', data);
 
             await refreshProfile();
-            toast.success('¡Propiedad creada exitosamente!');
             navigate('/dashboard');
-
-        } catch (error: any) {
-            console.error('Onboarding Error:', error);
-            toast.error('Error al crear la propiedad', {
-                description: error.message || 'Intenta nuevamente más tarde.'
-            });
+        } catch (err: any) {
+            setError(err.message || 'Error al crear la UH');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-6 transition-colors">
-            <div className="w-full max-w-2xl animate-mantty-fade-in">
+        <div className="min-h-screen mantty-background flex items-center justify-center p-6 relative overflow-hidden">
+            {/* Background elements */}
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-mantty-primary/30 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-mantty-secondary/20 blur-[120px] rounded-full" />
+            </div>
+
+            <div className="max-w-xl w-full relative z-10">
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center p-4 bg-emerald-100 dark:bg-emerald-900/30 rounded-full mb-6">
-                        <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2">
-                        ¡Bienvenido a Mantty, {user?.user_metadata?.full_name?.split(' ')[0]}!
-                    </h1>
-                    <p className="text-slate-500 dark:text-slate-400 text-lg">
-                        Para comenzar, configuremos tu primera Unidad Habitacional (UH).
+                    <img src="/vite.svg" alt="Mantty Host" className="w-16 h-16 mx-auto mb-6 drop-shadow-2xl" />
+                    <h1 className="text-4xl font-black text-white mb-3">¡Bienvenido a Mantty!</h1>
+                    <p className="text-slate-400 font-medium px-4">
+                        Para comenzar, configuremos tu primera Unidad Habitacional (UH) Remanufactura.
                     </p>
                 </div>
 
                 <div className="glassmorphism rounded-[2rem] p-8 md:p-12 border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900 shadow-xl">
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <div className="space-y-3">
-                                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Nombre de la Copropiedad</label>
-                                <div className="relative">
-                                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                    <input
-                                        type="text"
-                                        required
-                                        value={phData.name}
-                                        onChange={(e) => setPhData({ ...phData, name: e.target.value })}
-                                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
-                                        placeholder="Ej: Edificio Mirador"
-                                    />
-                                </div>
-                            </div>
+                    {error && (
+                        <div className="mb-8 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-medium">
+                            {error}
+                        </div>
+                    )}
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Dirección Física</label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                    <input
-                                        type="text"
-                                        required
-                                        value={phData.address}
-                                        onChange={(e) => setPhData({ ...phData, address: e.target.value })}
-                                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
-                                        placeholder="Ej: Calle 123 # 45-67"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-3">
-                                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Ciudad</label>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Nombre de la UH</label>
+                            <div className="relative group">
+                                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-mantty-primary transition-colors" />
                                 <input
                                     type="text"
                                     required
-                                    value={phData.city}
-                                    onChange={(e) => setPhData({ ...phData, city: e.target.value })}
-                                    className="w-full px-4 py-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
-                                    placeholder="Ej: Bogotá D.C."
+                                    value={uhData.name}
+                                    onChange={(e) => setUhData({ ...uhData, name: e.target.value })}
+                                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium"
+                                    placeholder="Ej: Residencial Horizonte"
                                 />
                             </div>
+                        </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Teléfono Administración</label>
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Dirección Exacta</label>
+                            <div className="relative group">
+                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-mantty-primary transition-colors" />
+                                <input
+                                    type="text"
+                                    required
+                                    value={uhData.address}
+                                    onChange={(e) => setUhData({ ...uhData, address: e.target.value })}
+                                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium"
+                                    placeholder="Calle 123 # 45-67"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Ciudad</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={uhData.city}
+                                    onChange={(e) => setUhData({ ...uhData, city: e.target.value })}
+                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium"
+                                    placeholder="Bogotá"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Teléfono UH</label>
                                 <input
                                     type="tel"
-                                    value={phData.phone}
-                                    onChange={(e) => setPhData({ ...phData, phone: e.target.value })}
-                                    className="w-full px-4 py-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
-                                    placeholder="Opcional"
+                                    required
+                                    value={uhData.phone}
+                                    onChange={(e) => setUhData({ ...uhData, phone: e.target.value })}
+                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium"
+                                    placeholder="601..."
                                 />
                             </div>
                         </div>
@@ -125,12 +129,12 @@ const OnboardingPage = () => {
                         <div className="pt-4">
                             <button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={loading}
                                 className="w-full py-4 rounded-2xl mantty-gradient text-white font-bold text-lg flex items-center justify-center gap-3 hover:opacity-90 disabled:opacity-50 transition-all shadow-xl shadow-mantty-primary/20 hover:scale-[1.02] active:scale-[0.98]"
                             >
-                                {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
+                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
                                     <>
-                                        Crear Propiedad y Comenzar
+                                        Crear UH y Comenzar
                                         <ArrowRight className="w-6 h-6" />
                                     </>
                                 )}

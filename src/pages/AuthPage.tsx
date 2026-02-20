@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
-import { HousePlus, Mail, Lock, Loader2, Sun, Moon, User, Building2, Ticket } from 'lucide-react';
+import { HousePlus, Mail, Lock, Loader2, Sun, Moon, User, Ticket } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -21,8 +21,8 @@ const AuthPage = () => {
 
     // Invite Params
     const inviteCode = searchParams.get('code');
-    const invitePhName = searchParams.get('ph');
-    const invitePhId = searchParams.get('join');
+    const inviteUhName = searchParams.get('uh') || searchParams.get('ph'); // Support both for now
+    const inviteUhId = searchParams.get('join');
 
     // Redirect if already logged in (unless it's an invite flow, might want to handle differently, but standard is redirect)
     useEffect(() => {
@@ -30,10 +30,10 @@ const AuthPage = () => {
             navigate('/dashboard', { replace: true });
         }
         // Auto-switch to register if there is an invite code
-        if (inviteCode && invitePhId) {
+        if (inviteCode && inviteUhId) {
             setIsLogin(false);
         }
-    }, [user, navigate, inviteCode, invitePhId]);
+    }, [user, navigate, inviteCode, inviteUhId]);
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,9 +57,9 @@ const AuthPage = () => {
                 };
 
                 // If Invitation Flow
-                if (inviteCode && invitePhId) {
+                if (inviteCode && inviteUhId) {
                     metaData.invite_code = inviteCode;
-                    metaData.invite_ph_id = invitePhId;
+                    metaData.invite_uh_id = inviteUhId;
                 }
 
                 const { data, error } = await supabase.auth.signUp({
@@ -108,13 +108,13 @@ const AuthPage = () => {
                         <HousePlus className="text-white w-8 h-8" />
                     </NavLink>
 
-                    {inviteCode && invitePhName ? (
+                    {inviteCode && inviteUhName ? (
                         <div className="mb-4 animate-bounce-in">
                             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200">
                                 <Ticket className="w-3 h-3" />
                                 Invitación Especial
                             </span>
-                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">Unirse a {invitePhName}</h1>
+                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">Unirse a {inviteUhName}</h1>
                             <p className="text-slate-500 dark:text-slate-400 text-sm">Crea tu cuenta para acceder a la propiedad.</p>
                         </div>
                     ) : (
@@ -123,7 +123,7 @@ const AuthPage = () => {
                                 {isLogin ? 'Bienvenido a Mantty' : 'Comienza con Mantty'}
                             </h1>
                             <p className="text-slate-500 dark:text-slate-400">
-                                {isLogin ? 'Ingresa a tu panel de gestión' : 'La plataforma inteligente para tu PH'}
+                                {isLogin ? 'Ingresa a tu panel de gestión' : 'La plataforma inteligente para tu UH Remanufactura'}
                             </p>
                         </>
                     )}
@@ -136,8 +136,8 @@ const AuthPage = () => {
                             <button
                                 onClick={() => { setIsLogin(true); setError(null); }}
                                 className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isLogin
-                                        ? 'bg-white dark:bg-slate-800 text-mantty-primary shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                    ? 'bg-white dark:bg-slate-800 text-mantty-primary shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                                     }`}
                             >
                                 Iniciar Sesión
@@ -145,8 +145,8 @@ const AuthPage = () => {
                             <button
                                 onClick={() => { setIsLogin(false); setError(null); }}
                                 className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isLogin
-                                        ? 'bg-white dark:bg-slate-800 text-mantty-primary shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                    ? 'bg-white dark:bg-slate-800 text-mantty-primary shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                                     }`}
                             >
                                 Registrarse
@@ -228,7 +228,7 @@ const AuthPage = () => {
                         <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/5">
                             {!isLogin ? (
                                 <p className="text-center text-xs text-slate-500">
-                                    ¿Buscas administrar tu PH? <br />
+                                    ¿Buscas administrar tu UH Remanufactura? <br />
                                     Crea tu cuenta y configura tu propiedad en minutos.
                                 </p>
                             ) : (

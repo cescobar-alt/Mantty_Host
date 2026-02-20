@@ -7,7 +7,7 @@ export type UserRole = 'superadmin' | 'admin_uh' | 'residente' | 'proveedor';
 
 export const ROLES: Record<UserRole, { description: string }> = {
     superadmin: { description: 'Administración global de la plataforma Mantty Host.' },
-    admin_uh: { description: 'Administrador de una Unidad Habitacional específica.' },
+    admin_uh: { description: 'Administrador de una Unidad Habitacional Remanufactura específica.' },
     residente: { description: 'Usuarios que viven en la propiedad y pueden crear solicitudes.' },
     proveedor: { description: 'Personal externo encargado de realizar los mantenimientos técnicos.' },
 };

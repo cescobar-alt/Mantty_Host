@@ -3,12 +3,12 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 interface ReportData {
-    id: string;
+    id: string | number;
     title: string;
     status: string;
     priority: string;
     created_at: string;
-    resident: string;
+    resident?: string;
 }
 
 /**
@@ -30,11 +30,11 @@ export const exportReports = {
             startY: 40,
             head: [['ID', 'Solicitud', 'Estado', 'Prioridad', 'Residente', 'Fecha']],
             body: data.map(item => [
-                item.id,
+                item.id.toString(),
                 item.title,
                 item.status,
                 item.priority,
-                item.resident,
+                item.resident ?? 'N/A',
                 new Date(item.created_at).toLocaleDateString()
             ]),
             theme: 'grid',

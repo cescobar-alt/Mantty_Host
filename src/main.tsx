@@ -5,12 +5,15 @@ import App from './App.tsx'
 
 import { ThemeProvider } from './context/ThemeContext.tsx'
 import { Toaster } from 'sonner';
+import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider>
-      <App />
-      <Toaster position="top-right" richColors />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <App />
+        <Toaster position="top-right" richColors />
+      </ThemeProvider>
+    </ErrorBoundary>
   </StrictMode>,
-)
+);

@@ -15,6 +15,7 @@ import {
     Package
 } from 'lucide-react';
 import { PLANS } from '../lib/business-rules';
+import { useProperties } from '../hooks/useProperties';
 
 type TabType = 'perfil' | 'propiedad' | 'plan';
 
@@ -24,14 +25,16 @@ export const ConfiguracionPage = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
+    const { propertyData: sbProperty, updateProperty } = useProperties(propertyId || undefined);
+
     // Profile State
     const [profileData, setProfileData] = useState({
         full_name: '',
         email: '',
     });
 
-    // Property State
-    const [propertyData, setPropertyData] = useState({
+    // Property Form State (local for editing)
+    const [propertyForm, setPropertyForm] = useState({
         name: '',
         address: '',
     });
@@ -43,25 +46,16 @@ export const ConfiguracionPage = () => {
                 email: user.email || '',
             });
         }
+    }, [user]);
 
-        const fetchProperty = async () => {
-            if (!propertyId) return;
-            const { data, error } = await supabase
-                .from('properties')
-                .select('*')
-                .eq('id', propertyId)
-                .single();
-
-            if (data && !error) {
-                setPropertyData({
-                    name: data.name || '',
-                    address: data.address || '',
-                });
-            }
-        };
-
-        fetchProperty();
-    }, [user, propertyId]);
+    useEffect(() => {
+        if (sbProperty) {
+            setPropertyForm({
+                name: sbProperty.name || '',
+                address: sbProperty.address || '',
+            });
+        }
+    }, [sbProperty]);
 
     const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -94,23 +88,14 @@ export const ConfiguracionPage = () => {
         setIsSaving(true);
         setMessage(null);
 
-        try {
-            const { error } = await supabase
-                .from('properties')
-                .update({
-                    name: propertyData.name,
-                    address: propertyData.address
-                })
-                .eq('id', propertyId);
+        const result = await updateProperty(propertyId, propertyForm);
 
-            if (error) throw error;
-
+        if (result.success) {
             setMessage({ type: 'success', text: 'Datos de la UH actualizados correctamente' });
-        } catch (err: any) {
-            setMessage({ type: 'error', text: err.message || 'Error al actualizar propiedad' });
-        } finally {
-            setIsSaving(false);
+        } else {
+            setMessage({ type: 'error', text: result.error || 'Error al actualizar propiedad' });
         }
+        setIsSaving(false);
     };
 
     const currentPlanInfo = plan ? PLANS[plan] : PLANS.basic;
@@ -232,15 +217,15 @@ export const ConfiguracionPage = () => {
                         <form onSubmit={handleSaveProperty} className="space-y-6">
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Nombre de la Copropiedad</label>
-                                    <div className="relative">
+                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Nombre de la UH Remanufactura</label>
+                                    <div className="relative group">
                                         <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                         <input
                                             type="text"
-                                            value={propertyData.name}
-                                            onChange={(e) => setPropertyData({ ...propertyData, name: e.target.value })}
+                                            value={propertyForm.name}
+                                            onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
                                             className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium"
-                                            placeholder="Nombre de la PH"
+                                            placeholder="Nombre de la UH"
                                         />
                                     </div>
                                 </div>
@@ -250,8 +235,8 @@ export const ConfiguracionPage = () => {
                                         <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                         <input
                                             type="text"
-                                            value={propertyData.address}
-                                            onChange={(e) => setPropertyData({ ...propertyData, address: e.target.value })}
+                                            value={propertyForm.address}
+                                            onChange={(e) => setPropertyForm({ ...propertyForm, address: e.target.value })}
                                             className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium"
                                             placeholder="Ej: Calle 123 # 45-67"
                                         />
