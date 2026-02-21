@@ -5,9 +5,20 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/mantty-logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)" />
   <meta name="description" content="Mantty Host - Gestión moderna de Unidades Habitacionales Remanufactura con IA" />
   <title>Mantty Host</title>
+
+  <script>
+    (function () {
+      try {
+        const theme = localStorage.getItem('mantty-theme') || 'system';
+        const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (isDark) document.documentElement.classList.add('dark');
+      } catch (e) { }
+    })();
+  </script>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,9 +26,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
 
   <style>
+    :root {
+      background-color: #f8fafc;
+      color-scheme: light dark;
+    }
+
+    :root.dark {
+      background-color: #020617;
+    }
+
     body {
       margin: 0;
-      background-color: #0f172a;
       font-family: 'Outfit', sans-serif;
     }
   </style>
