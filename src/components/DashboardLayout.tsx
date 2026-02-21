@@ -11,12 +11,13 @@ import {
     ChevronRight,
     X,
     Sun,
-    Moon,
-    MoreHorizontal
+    Moon
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { NotificationBell } from './NotificationBell';
+import { BottomNavigation } from './BottomNavigation';
+import { MobileFAB } from './dashboard/MobileFAB';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -54,8 +55,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         { icon: <Settings className="w-5 h-5" />, label: 'Configuración', path: '/dashboard/settings' },
     ];
 
-    // Bottom tab items (max 5 for mobile, the last is "Más")
-    const primaryTabs = menuItems.slice(0, 4);
 
     const getRoleLabel = (r: string | null | undefined) => {
         switch (r) {
@@ -278,51 +277,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     <NotificationBell />
                 </div>
 
-                <div className="px-4 py-6 lg:p-12 lg:pt-24 max-w-7xl mx-auto">
+                <div className="px-4 py-6 lg:p-12 lg:pt-24 max-w-7xl mx-auto pb-32 lg:pb-12">
                     {children}
                 </div>
             </div>
 
-            {/* =================== Mobile Bottom Tab Bar =================== */}
-            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-white/5 safe-area-bottom">
-                <div className="flex items-stretch">
-                    {primaryTabs.map((item) => {
-                        const isActive = item.path === '/dashboard'
-                            ? location.pathname === '/dashboard'
-                            : location.pathname.startsWith(item.path);
-
-                        return (
-                            <button
-                                key={item.path}
-                                onClick={() => navigate(item.path)}
-                                className={`flex-1 flex flex-col items-center justify-center gap-1 py-2.5 transition-colors relative active:bg-slate-100 dark:active:bg-white/5 ${isActive
-                                    ? 'text-mantty-primary'
-                                    : 'text-slate-400 dark:text-slate-500'
-                                    }`}
-                            >
-                                {isActive && (
-                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-mantty-primary rounded-full" />
-                                )}
-                                <span className={isActive ? 'text-mantty-primary' : ''}>
-                                    {item.icon}
-                                </span>
-                                <span className={`text-[10px] font-bold ${isActive ? 'text-mantty-primary' : ''}`}>
-                                    {item.label.length > 10 ? item.label.split(' ')[0] : item.label}
-                                </span>
-                            </button>
-                        );
-                    })}
-
-                    {/* "More" tab */}
-                    <button
-                        onClick={() => setIsMobileMenuOpen(true)}
-                        className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-slate-400 dark:text-slate-500 transition-colors active:bg-slate-100 dark:active:bg-white/5"
-                    >
-                        <MoreHorizontal className="w-5 h-5" />
-                        <span className="text-[10px] font-bold">Más</span>
-                    </button>
-                </div>
-            </div>
+            <BottomNavigation />
+            <MobileFAB />
         </div>
     );
 };
