@@ -25,12 +25,16 @@ const OnboardingPage = () => {
 
         try {
             // 1. Create the Unidad Habitacional (UH) via Edge Function
+            const { data: { session } } = await supabase.auth.getSession();
             const { data, error } = await supabase.functions.invoke('create-uh', {
                 body: {
                     name: uhData.name,
                     address: uhData.address,
                     city: uhData.city,
                     phone: uhData.phone
+                },
+                headers: {
+                    Authorization: `Bearer ${session?.access_token}`
                 }
             });
 

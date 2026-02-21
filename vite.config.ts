@@ -11,7 +11,7 @@ export default defineConfig({
         tailwindcss(),
         VitePWA({
             registerType: 'autoUpdate',
-            includeAssets: ['mantty-logo.png', 'apple-touch-icon.png', 'mask-icon.svg'],
+            includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'favicon.ico'],
             manifest: {
                 name: 'Mantty Host',
                 short_name: 'Mantty',
