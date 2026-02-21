@@ -1,72 +1,64 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
+import type { Tables } from '../types/database.types';
 
-export interface IProperty {
-    id: string;
-    name: string;
-    address: string | null;
-    admin_id: string;
-    logo_url?: string;
-    created_at: string;
-}
+export type IProperty = Tables<'properties'>;
 
 export const useProperties = (propertyId?: string) => {
-    const [propertyData, setPropertyData] = useState<IProperty | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
-    const fetchProperty = useCallback(async (id: string) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const { data, error: sbError } = await supabase
+    const {
+        data: propertyData,
+        isLoading: loading,
+        error: queryError,
+    } = useQuery({
+        queryKey: ['property', propertyId],
+        queryFn: async () => {
+            if (!propertyId) return null;
+            const { data, error } = await supabase
                 .from('properties')
                 .select('*')
-                .eq('id', id)
+                .eq('id', propertyId)
                 .single();
 
-            if (sbError) throw sbError;
-            setPropertyData(data as IProperty);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Unknown error';
-            setError(message);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+            if (error) throw error;
+            return data;
+        },
+        enabled: !!propertyId,
+    });
 
-    const updateProperty = async (id: string, updates: Partial<IProperty>) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const { error: sbError } = await supabase
+    const updateMutation = useMutation({
+        mutationFn: async ({ id, updates }: { id: string; updates: Partial<IProperty> }) => {
+            const { error } = await supabase
                 .from('properties')
                 .update(updates)
                 .eq('id', id);
 
-            if (sbError) throw sbError;
-            await fetchProperty(id);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['property', propertyId] });
+        },
+    });
+
+    const error = queryError instanceof Error ? queryError.message :
+        updateMutation.error instanceof Error ? updateMutation.error.message :
+            null;
+
+    const updateProperty = async (id: string, updates: Partial<IProperty>) => {
+        try {
+            await updateMutation.mutateAsync({ id, updates });
             return { success: true };
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Unknown error';
-            setError(message);
+            const message = err instanceof Error ? err.message : 'Error updating property';
             return { success: false, error: message };
-        } finally {
-            setLoading(false);
         }
     };
 
-    useEffect(() => {
-        if (propertyId) {
-            fetchProperty(propertyId);
-        }
-    }, [propertyId, fetchProperty]);
-
     return {
         propertyData,
-        loading,
+        loading: loading || updateMutation.isPending,
         error,
-        fetchProperty,
         updateProperty
     };
 };

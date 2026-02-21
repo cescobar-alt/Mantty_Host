@@ -11,8 +11,11 @@ import {
     TrendingUp,
     Inbox
 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { useVoice } from '../../hooks/useVoice';
 import { exportReports } from '../../lib/export-utils';
+import { useTickets } from '../../hooks/useTickets';
 import type { ReactNode } from 'react';
 
 interface MiniStatCardProps {
@@ -28,17 +31,30 @@ interface QuickLinkProps {
     icon: ReactNode;
 }
 
-const mockReports = [
-    { id: '1021', title: 'Falla en ascensor Torre 1', status: 'Pendiente', priority: 'Alta', resident: 'Apto 101', created_at: new Date().toISOString() },
-    { id: '1022', title: 'Humedad en sótano -1', status: 'En progreso', priority: 'Media', resident: 'Admin', created_at: new Date().toISOString() },
-    { id: '1023', title: 'Mantenimiento preventivo piscina', status: 'Completado', priority: 'Baja', resident: 'Apto 502', created_at: new Date().toISOString() },
-];
-
 export const AdminPHView = () => {
     const { isRecording, transcript, startRecording, stopRecording } = useVoice();
+    const { tickets, loading } = useTickets();
 
     const handleExport = () => {
-        exportReports.toPDF(mockReports);
+        const reportData = tickets.map(t => ({
+            id: t.id,
+            title: t.title,
+            status: t.status || 'pendiente',
+            priority: t.priority || 'media',
+            created_at: t.created_at,
+            resident: 'N/A'
+        }));
+        exportReports.toPDF(reportData);
+    };
+
+    // Calculate real stats
+    const stats = {
+        active: tickets.filter(t => t.status === 'pendiente').length,
+        assigned: tickets.filter(t => t.assigned_to).length,
+        inProgress: tickets.filter(t => t.status === 'en_progreso').length,
+        completed: tickets.filter(t => t.status === 'completado').length,
+        critical: tickets.filter(t => t.priority === 'critica' || t.priority === 'alta').length,
+        efficiency: 92 // Logic placeholder
     };
 
     return (
@@ -75,38 +91,38 @@ export const AdminPHView = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
                 <MiniStatCard
                     label="Activas"
-                    value="15"
+                    value={loading ? '...' : stats.active.toString()}
                     icon={<Inbox className="w-4 h-4 text-mantty-primary" />}
                     color="primary"
                 />
                 <MiniStatCard
                     label="Asignadas"
-                    value="8"
+                    value={loading ? '...' : stats.assigned.toString()}
                     icon={<Users className="w-4 h-4 text-blue-400" />}
                     color="blue"
                 />
                 <MiniStatCard
                     label="En Progreso"
-                    value="4"
+                    value={loading ? '...' : stats.inProgress.toString()}
                     icon={<Clock className="w-4 h-4 text-amber-400" />}
                     color="amber"
                 />
                 <MiniStatCard
                     label="Por Revisar"
-                    value="3"
+                    value={loading ? '...' : stats.completed.toString()}
                     icon={<Shield className="w-4 h-4 text-emerald-400" />}
                     color="emerald"
                 />
                 <MiniStatCard
                     label="Críticas"
-                    value="2"
+                    value={loading ? '...' : stats.critical.toString()}
                     icon={<AlertTriangle className="w-4 h-4 text-red-500" />}
                     color="red"
                     highlight
                 />
                 <MiniStatCard
                     label="Eficiencia"
-                    value="92%"
+                    value={`${stats.efficiency}%`}
                     icon={<TrendingUp className="w-4 h-4 text-mantty-secondary" />}
                     color="secondary"
                 />
@@ -123,29 +139,36 @@ export const AdminPHView = () => {
                     </div>
 
                     <div className="space-y-4">
-                        {mockReports.map((report) => (
-                            <div key={report.id} className="glassmorphism rounded-3xl p-6 border border-slate-100 dark:border-white/5 hover:border-mantty-primary/20 dark:hover:border-white/10 transition-all cursor-pointer group shadow-sm hover:shadow-md">
-                                <div className="flex items-center gap-5">
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border border-slate-100 dark:border-white/5 ${report.priority === 'Alta' ? 'bg-red-500/10 text-red-500' :
-                                        report.priority === 'Media' ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-500/10 text-emerald-500'
-                                        }`}>
-                                        <AlertTriangle className="w-6 h-6" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-3 mb-1">
-                                            <h3 className="font-bold text-lg truncate text-slate-900 dark:text-white group-hover:text-mantty-primary transition-colors">{report.title}</h3>
-                                            <span className={`text-[10px] uppercase tracking-widest font-black px-2 py-1 rounded-lg ${report.status === 'Pendiente' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' :
-                                                report.status === 'En progreso' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                                                }`}>
-                                                {report.status}
-                                            </span>
-                                        </div>
-                                        <p className="text-slate-500 text-sm font-medium">Originado en {report.resident} • Hace 2 horas</p>
-                                    </div>
-                                    <ArrowUpRight className="w-5 h-5 text-slate-400 dark:text-slate-600 group-hover:text-mantty-primary dark:group-hover:text-white transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                                </div>
+                        {tickets.length === 0 && !loading ? (
+                            <div className="text-center py-20 bg-slate-50 dark:bg-slate-900/40 rounded-[2.5rem] border border-dashed border-slate-200 dark:border-white/5">
+                                <Inbox className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
+                                <p className="text-slate-400 font-medium font-bold">No hay incidentes reportados</p>
                             </div>
-                        ))}
+                        ) : (
+                            tickets.slice(0, 5).map((report) => (
+                                <div key={report.id} className="glassmorphism rounded-3xl p-6 border border-slate-100 dark:border-white/5 hover:border-mantty-primary/20 dark:hover:border-white/10 transition-all cursor-pointer group shadow-sm hover:shadow-md">
+                                    <div className="flex items-center gap-5">
+                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border border-slate-100 dark:border-white/5 ${report.priority === 'alta' || report.priority === 'critica' ? 'bg-red-500/10 text-red-500' :
+                                            report.priority === 'media' ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-500/10 text-emerald-500'
+                                            }`}>
+                                            <AlertTriangle className="w-6 h-6" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <h3 className="font-bold text-lg truncate text-slate-900 dark:text-white group-hover:text-mantty-primary transition-colors">{report.title}</h3>
+                                                <span className={`text-[10px] uppercase tracking-widest font-black px-2 py-1 rounded-lg ${report.status === 'pendiente' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' :
+                                                    report.status === 'en_progreso' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                                    }`}>
+                                                    {report.status}
+                                                </span>
+                                            </div>
+                                            <p className="text-slate-500 text-sm font-medium">Hace {formatDistanceToNow(new Date(report.created_at), { locale: es })}</p>
+                                        </div>
+                                        <ArrowUpRight className="w-5 h-5 text-slate-400 dark:text-slate-600 group-hover:text-mantty-primary dark:group-hover:text-white transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
 
                     {/* Community Overview */}

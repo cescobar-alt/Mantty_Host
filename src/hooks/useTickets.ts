@@ -1,91 +1,85 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import type { Tables } from '../types/database.types';
 
-export interface Ticket {
-    id: number;
-    title: string;
-    description: string;
-    status: 'pendiente' | 'en_progreso' | 'completado' | 'cancelado';
-    priority: 'baja' | 'media' | 'alta' | 'critica';
-    created_by: string;
-    property_id: string;
-    assigned_to?: string;
-    image_url?: string;
-    created_at: string;
-}
+export type Ticket = Tables<'tickets'>;
 
 export const useTickets = () => {
     const { user, propertyId, role } = useAuth();
-    const [tickets, setTickets] = useState<Ticket[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
-    const fetchTickets = useCallback(async () => {
-        if (!user || !propertyId) return;
+    const {
+        data: tickets = [],
+        isLoading: loading,
+        error: queryError,
+        refetch
+    } = useQuery({
+        queryKey: ['tickets', propertyId, role, user?.id],
+        queryFn: async () => {
+            if (!user || !propertyId) return [];
 
-        setLoading(true);
-        try {
             let query = supabase
                 .from('tickets')
                 .select('*')
                 .eq('property_id', propertyId);
 
-            // Filter for residents
             if (role === 'residente') {
                 query = query.eq('created_by', user.id);
             }
 
-            const { data, error: sbError } = await query.order('created_at', { ascending: false });
-
-            if (sbError) throw sbError;
-            setTickets((data || []) as Ticket[]);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Unknown error';
-            setError(message);
-        } finally {
-            setLoading(false);
-        }
-    }, [user, propertyId, role]);
+            const { data, error } = await query.order('created_at', { ascending: false });
+            if (error) throw error;
+            return data as Ticket[];
+        },
+        enabled: !!user && !!propertyId,
+    });
 
     useEffect(() => {
-        if (user && propertyId) {
-            fetchTickets();
+        if (!user || !propertyId) return;
 
-            // Realtime subscription
-            const channel = supabase
-                .channel('tickets_changes')
-                .on(
-                    'postgres_changes',
-                    {
-                        event: '*',
-                        schema: 'public',
-                        table: 'tickets',
-                        filter: `property_id=eq.${propertyId}`
-                    },
-                    (payload) => {
-                        if (payload.eventType === 'INSERT') {
-                            const newTicket = payload.new as Ticket;
-                            // For residents, only add if they created it
-                            if (role !== 'residente' || newTicket.created_by === user.id) {
-                                setTickets((prev) => [newTicket, ...prev]);
-                            }
-                        } else if (payload.eventType === 'UPDATE') {
-                            setTickets((prev) =>
-                                prev.map((t) => (t.id === payload.new.id ? { ...t, ...payload.new as Partial<Ticket> } : t))
+        const channel = supabase
+            .channel('tickets_changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'tickets',
+                    filter: `property_id=eq.${propertyId}`
+                },
+                (payload) => {
+                    const queryKey = ['tickets', propertyId, role, user.id];
+
+                    if (payload.eventType === 'INSERT') {
+                        const newTicket = payload.new as Ticket;
+                        if (role !== 'residente' || newTicket.created_by === user.id) {
+                            queryClient.setQueryData<Ticket[]>(queryKey, (prev) =>
+                                prev ? [newTicket, ...prev] : [newTicket]
                             );
-                        } else if (payload.eventType === 'DELETE') {
-                            setTickets((prev) => prev.filter((t) => t.id !== payload.old.id));
                         }
+                    } else if (payload.eventType === 'UPDATE') {
+                        const updatedTicket = payload.new as Ticket;
+                        queryClient.setQueryData<Ticket[]>(queryKey, (prev) =>
+                            prev?.map((t) => (t.id === updatedTicket.id ? updatedTicket : t))
+                        );
+                    } else if (payload.eventType === 'DELETE') {
+                        const oldId = (payload.old as { id: number }).id;
+                        queryClient.setQueryData<Ticket[]>(queryKey, (prev) =>
+                            prev?.filter((t) => t.id !== oldId)
+                        );
                     }
-                )
-                .subscribe();
+                }
+            )
+            .subscribe();
 
-            return () => {
-                supabase.removeChannel(channel);
-            };
-        }
-    }, [user, propertyId, role, fetchTickets]);
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [user, propertyId, role, queryClient]);
 
-    return { tickets, loading, error, refresh: fetchTickets };
+    const error = queryError instanceof Error ? queryError.message : null;
+
+    return { tickets, loading, error, refresh: refetch };
 };

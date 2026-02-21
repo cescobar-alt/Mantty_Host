@@ -1,56 +1,71 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Bell, Check, Clock, Inbox, X } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import type { Tables } from '../types/database.types';
 
-interface Notification {
-    id: string;
-    title: string;
-    message: string;
-    type: string;
-    ticket_id: number;
-    is_read: boolean;
-    created_at: string;
-}
+export type Notification = Tables<'notifications'>;
 
 export const NotificationBell = () => {
     const { user } = useAuth();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isOpen, setIsOpen] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(0);
+    const queryClient = useQueryClient();
 
-    const fetchNotifications = useCallback(async () => {
-        if (!user) return;
-        const { data, error } = await supabase
-            .from('notifications')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(10);
+    const {
+        data: notifications = [],
+    } = useQuery({
+        queryKey: ['notifications', user?.id],
+        queryFn: async () => {
+            if (!user) return [];
+            const { data, error } = await supabase
+                .from('notifications')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(10);
 
-        if (!error && data) {
-            setNotifications(data);
-            setUnreadCount(data.filter(n => !n.is_read).length);
-        }
-    }, [user]);
+            if (error) throw error;
+            return data as Notification[];
+        },
+        enabled: !!user,
+    });
+
+    const unreadCount = notifications.filter(n => !n.is_read).length;
+
+    const markAsReadMutation = useMutation({
+        mutationFn: async (id: string) => {
+            const { error } = await supabase
+                .from('notifications')
+                .update({ is_read: true })
+                .eq('id', id);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
+        },
+    });
+
+    const markAllAsReadMutation = useMutation({
+        mutationFn: async () => {
+            if (!user) return;
+            const { error } = await supabase
+                .from('notifications')
+                .update({ is_read: true })
+                .eq('user_id', user.id)
+                .eq('is_read', false);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
+        },
+    });
 
     useEffect(() => {
-        let isMounted = true;
-        const load = async () => {
-            if (isMounted) {
-                await fetchNotifications();
-            }
-        };
-        load();
-        return () => { isMounted = false; };
-    }, [fetchNotifications]);
-
-    useEffect(() => {
         if (!user) return;
 
-        // Realtime subscription
         const channel = supabase
             .channel('notifications_changes')
             .on(
@@ -61,9 +76,8 @@ export const NotificationBell = () => {
                     table: 'notifications',
                     filter: `user_id=eq.${user.id}`,
                 },
-                (payload) => {
-                    setNotifications(prev => [payload.new as Notification, ...prev].slice(0, 10));
-                    setUnreadCount(prev => prev + 1);
+                () => {
+                    queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
                 }
             )
             .subscribe();
@@ -71,9 +85,8 @@ export const NotificationBell = () => {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [user, fetchNotifications]);
+    }, [user, queryClient]);
 
-    // Prevent body scroll when notification panel is open on mobile
     useEffect(() => {
         if (isOpen && window.innerWidth < 1024) {
             document.body.style.overflow = 'hidden';
@@ -82,34 +95,6 @@ export const NotificationBell = () => {
         }
         return () => { document.body.style.overflow = ''; };
     }, [isOpen]);
-
-    const markAsRead = async (id: string) => {
-        const { error } = await supabase
-            .from('notifications')
-            .update({ is_read: true })
-            .eq('id', id);
-
-        if (!error) {
-            setNotifications(prev =>
-                prev.map(n => n.id === id ? { ...n, is_read: true } : n)
-            );
-            setUnreadCount(prev => Math.max(0, prev - 1));
-        }
-    };
-
-    const markAllAsRead = async () => {
-        if (!user) return;
-        const { error } = await supabase
-            .from('notifications')
-            .update({ is_read: true })
-            .eq('user_id', user.id)
-            .eq('is_read', false);
-
-        if (!error) {
-            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-            setUnreadCount(0);
-        }
-    };
 
     return (
         <div className="relative">
@@ -126,13 +111,11 @@ export const NotificationBell = () => {
 
             {isOpen && (
                 <>
-                    {/* Backdrop */}
                     <div
                         className="fixed inset-0 z-40 bg-black/20 lg:bg-transparent"
                         onClick={() => setIsOpen(false)}
                     />
 
-                    {/* Panel: Mobile = bottom sheet, Desktop = dropdown */}
                     <div className="
                         fixed lg:absolute
                         bottom-0 left-0 right-0 lg:bottom-auto lg:left-auto lg:right-0 lg:top-full
@@ -143,7 +126,6 @@ export const NotificationBell = () => {
                         shadow-2xl z-50 animate-slide-up-panel lg:animate-mantty-slide-up
                         overflow-hidden max-h-[80vh] lg:max-h-[500px]
                     ">
-                        {/* Mobile handle */}
                         <div className="lg:hidden flex justify-center pt-3 pb-1">
                             <div className="w-10 h-1 bg-slate-300 dark:bg-slate-700 rounded-full" />
                         </div>
@@ -161,7 +143,7 @@ export const NotificationBell = () => {
                             <div className="flex items-center gap-2">
                                 {unreadCount > 0 && (
                                     <button
-                                        onClick={markAllAsRead}
+                                        onClick={() => markAllAsReadMutation.mutate()}
                                         className="text-[10px] font-black uppercase tracking-wider text-mantty-primary hover:opacity-80 transition-opacity px-2 py-1"
                                     >
                                         marcar todo
@@ -189,7 +171,7 @@ export const NotificationBell = () => {
                                     <div
                                         key={n.id}
                                         className={`p-4 border-b border-slate-50 dark:border-white/5 flex gap-4 hover:bg-slate-50 dark:hover:bg-white/5 active:bg-slate-100 dark:active:bg-white/10 transition-colors cursor-pointer relative ${!n.is_read ? 'bg-mantty-primary/5' : ''}`}
-                                        onClick={() => markAsRead(n.id)}
+                                        onClick={() => markAsReadMutation.mutate(n.id)}
                                     >
                                         <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${n.type === 'assignment' ? 'bg-blue-500/10 text-blue-500' : 'bg-mantty-primary/10 text-mantty-primary'
                                             }`}>

@@ -22,7 +22,15 @@ export const AdminUHView = () => {
     const { tickets, loading } = useTickets();
 
     const handleExport = () => {
-        exportReports.toPDF(tickets);
+        const reportData = tickets.map(t => ({
+            id: t.id,
+            title: t.title,
+            status: t.status || 'pendiente',
+            priority: t.priority || 'media',
+            created_at: t.created_at,
+            resident: 'N/A'
+        }));
+        exportReports.toPDF(reportData);
     };
 
     // Calculate real stats

@@ -22,8 +22,8 @@ export const IncidentCard = ({ report }: IncidentCardProps) => {
         critica: 'bg-red-600 text-white shadow-lg shadow-red-500/20',
     };
 
-    const statusInfo = statusMap[report.status] || statusMap.pendiente;
-    const priorityClasses = priorityMap[report.priority] || priorityMap.media;
+    const statusInfo = statusMap[report.status as keyof typeof statusMap] || statusMap.pendiente;
+    const priorityClasses = priorityMap[report.priority as keyof typeof priorityMap] || priorityMap.media;
 
     return (
         <div className="animate-mantty-slide-up glassmorphism rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-100 dark:border-white/5 hover:border-mantty-primary/20 dark:hover:border-white/10 transition-all cursor-pointer group shadow-sm hover:shadow-md active:scale-[0.99]">
