@@ -10,7 +10,7 @@ const corsHeaders = {
 interface InviteRequest {
     email: string
     inviteLink: string
-    phName: string
+    uhName: string
     role: string
 }
 
@@ -21,16 +21,16 @@ serve(async (req) => {
     }
 
     try {
-        const { email, inviteLink, phName, role }: InviteRequest = await req.json()
+        const { email, inviteLink, uhName, role }: InviteRequest = await req.json()
 
-        if (!email || !inviteLink || !phName) {
+        if (!email || !inviteLink || !uhName) {
             return new Response(
-                JSON.stringify({ error: 'Faltan campos requeridos (email, inviteLink, phName)' }),
+                JSON.stringify({ error: 'Faltan campos requeridos (email, inviteLink, uhName)' }),
                 { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
             )
         }
 
-        console.log(`Procesando invitación para: ${email} en ${phName} (${role})`)
+        console.log(`Procesando invitación para: ${email} en ${uhName} (${role})`)
 
         // Check for API Key
         if (!RESEND_API_KEY) {
@@ -57,11 +57,11 @@ serve(async (req) => {
             body: JSON.stringify({
                 from: 'Mantty Host <noreply@mantty.co>', // Update with your verify domain or use 'onboarding@resend.dev' for testing
                 to: [email],
-                subject: `Invitación a ${phName} - Mantty Host`,
+                subject: `Invitación a ${uhName} - Mantty Host`,
                 html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #333;">Bienvenido a Mantty</h1>
-            <p>Has sido invitado a formar parte de la administración y gestión de <strong>${phName}</strong> con el rol de <strong>${role}</strong>.</p>
+            <p>Has sido invitado a formar parte de la administración y gestión de <strong>${uhName}</strong> con el rol de <strong>${role}</strong>.</p>
             
             <div style="margin: 30px 0;">
               <a href="${inviteLink}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">

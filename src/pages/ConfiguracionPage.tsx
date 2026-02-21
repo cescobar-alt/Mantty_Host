@@ -74,8 +74,9 @@ export const ConfiguracionPage = () => {
 
             await refreshProfile();
             setMessage({ type: 'success', text: 'Perfil actualizado correctamente' });
-        } catch (err: any) {
-            setMessage({ type: 'error', text: err.message || 'Error al actualizar perfil' });
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Error al actualizar perfil';
+            setMessage({ type: 'error', text: message });
         } finally {
             setIsSaving(false);
         }
@@ -102,67 +103,70 @@ export const ConfiguracionPage = () => {
     const isPro = plan === 'plus' || plan === 'max';
 
     return (
-        <div className="animate-mantty-fade-in max-w-4xl mx-auto pb-20">
-            <header className="mb-10">
-                <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-2 transition-colors flex items-center gap-4">
+        <div className="animate-mantty-fade-in max-w-4xl mx-auto pb-24 lg:pb-20">
+            <header className="mb-6 sm:mb-10">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-2 transition-colors flex flex-wrap items-center gap-3">
                     Configuración
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 bg-mantty-primary/10 text-mantty-primary rounded-full border border-mantty-primary/20">
                         {role?.replace('_', ' ')}
                     </span>
                 </h1>
-                <p className="text-slate-600 dark:text-slate-400 font-medium">Administra tu cuenta y los parámetros de tu propiedad.</p>
+                <p className="text-slate-600 dark:text-slate-400 font-medium text-sm sm:text-base">Administra tu cuenta y los parámetros de tu propiedad.</p>
             </header>
 
             {message && (
-                <div className={`mb-8 p-4 rounded-2xl border flex items-center gap-3 animate-mantty-slide-up ${message.type === 'success'
+                <div className={`mb-6 sm:mb-8 p-4 rounded-2xl border flex items-center gap-3 animate-mantty-slide-up ${message.type === 'success'
                     ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
                     : 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400'
                     }`}>
-                    {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+                    {message.type === 'success' ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <AlertTriangle className="w-5 h-5 shrink-0" />}
                     <span className="text-sm font-bold">{message.text}</span>
                 </div>
             )}
 
-            <div className="flex flex-wrap gap-2 mb-8 p-1 bg-slate-100 dark:bg-slate-900/50 rounded-2xl w-fit">
-                <TabButton
-                    active={activeTab === 'perfil'}
-                    onClick={() => setActiveTab('perfil')}
-                    icon={<User className="w-4 h-4" />}
-                    label="Mi Perfil"
-                />
-                {(role === 'admin_uh' || role === 'superadmin') && (
-                    <>
-                        <TabButton
-                            active={activeTab === 'propiedad'}
-                            onClick={() => setActiveTab('propiedad')}
-                            icon={<Building2 className="w-4 h-4" />}
-                            label="Datos de la UH"
-                        />
-                        <TabButton
-                            active={activeTab === 'plan'}
-                            onClick={() => setActiveTab('plan')}
-                            icon={<CreditCard className="w-4 h-4" />}
-                            label="Suscripción"
-                        />
-                    </>
-                )}
+            {/* Scrollable tabs for mobile */}
+            <div className="mb-6 sm:mb-8 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
+                <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-900/50 rounded-2xl w-max min-w-full sm:w-fit">
+                    <TabButton
+                        active={activeTab === 'perfil'}
+                        onClick={() => setActiveTab('perfil')}
+                        icon={<User className="w-4 h-4" />}
+                        label="Mi Perfil"
+                    />
+                    {(role === 'admin_uh' || role === 'superadmin') && (
+                        <>
+                            <TabButton
+                                active={activeTab === 'propiedad'}
+                                onClick={() => setActiveTab('propiedad')}
+                                icon={<Building2 className="w-4 h-4" />}
+                                label="Datos UH"
+                            />
+                            <TabButton
+                                active={activeTab === 'plan'}
+                                onClick={() => setActiveTab('plan')}
+                                icon={<CreditCard className="w-4 h-4" />}
+                                label="Suscripción"
+                            />
+                        </>
+                    )}
+                </div>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
                 {activeTab === 'perfil' && (
-                    <div className="glassmorphism rounded-[2.5rem] p-8 border border-slate-200 dark:border-white/5 space-y-8 bg-white dark:bg-transparent shadow-sm">
+                    <div className="glassmorphism rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 border border-slate-200 dark:border-white/5 space-y-6 sm:space-y-8 bg-white dark:bg-transparent shadow-sm">
                         <div className="flex items-center gap-4 mb-2">
-                            <div className="w-12 h-12 rounded-2xl bg-mantty-primary/10 flex items-center justify-center text-mantty-primary">
-                                <User className="w-6 h-6" />
+                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-mantty-primary/10 flex items-center justify-center text-mantty-primary shrink-0">
+                                <User className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Información Personal</h3>
-                                <p className="text-slate-500 text-sm">Actualiza tus datos de contacto.</p>
+                                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Información Personal</h3>
+                                <p className="text-slate-500 text-xs sm:text-sm">Actualiza tus datos de contacto.</p>
                             </div>
                         </div>
 
-                        <form onSubmit={handleSaveProfile} className="space-y-6">
-                            <div className="grid md:grid-cols-2 gap-6">
+                        <form onSubmit={handleSaveProfile} className="space-y-5 sm:space-y-6">
+                            <div className="grid gap-5 sm:gap-6 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Nombre Completo</label>
                                     <div className="relative">
@@ -171,7 +175,7 @@ export const ConfiguracionPage = () => {
                                             type="text"
                                             value={profileData.full_name}
                                             onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })}
-                                            className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium"
+                                            className="w-full pl-12 pr-4 py-3.5 sm:py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium"
                                             placeholder="Tu nombre completo"
                                         />
                                     </div>
@@ -184,7 +188,7 @@ export const ConfiguracionPage = () => {
                                             type="email"
                                             value={profileData.email}
                                             disabled
-                                            className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 text-slate-500 cursor-not-allowed font-medium"
+                                            className="w-full pl-12 pr-4 py-3.5 sm:py-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 text-slate-500 cursor-not-allowed font-medium"
                                         />
                                     </div>
                                     <p className="text-[10px] text-slate-400 ml-1 italic">* El correo no se puede cambiar</p>
@@ -193,7 +197,7 @@ export const ConfiguracionPage = () => {
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className="px-8 py-3 rounded-xl bg-mantty-gradient text-white font-bold text-sm hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-mantty-primary/20"
+                                className="w-full sm:w-auto px-8 py-3.5 sm:py-3 rounded-xl bg-mantty-gradient text-white font-bold text-sm hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-mantty-primary/20 active:scale-[0.98]"
                             >
                                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                 Guardar Cambios
@@ -203,28 +207,28 @@ export const ConfiguracionPage = () => {
                 )}
 
                 {activeTab === 'propiedad' && (
-                    <div className="glassmorphism rounded-[2.5rem] p-8 border border-slate-200 dark:border-white/5 space-y-8 bg-white dark:bg-transparent shadow-sm">
+                    <div className="glassmorphism rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 border border-slate-200 dark:border-white/5 space-y-6 sm:space-y-8 bg-white dark:bg-transparent shadow-sm">
                         <div className="flex items-center gap-4 mb-2">
-                            <div className="w-12 h-12 rounded-2xl bg-mantty-secondary/10 flex items-center justify-center text-mantty-secondary">
-                                <Building2 className="w-6 h-6" />
+                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-mantty-secondary/10 flex items-center justify-center text-mantty-secondary shrink-0">
+                                <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Información de la UH</h3>
-                                <p className="text-slate-500 text-sm">Gestiona los datos institucionales de tu copropiedad.</p>
+                                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Información de la UH</h3>
+                                <p className="text-slate-500 text-xs sm:text-sm">Gestiona los datos de tu copropiedad.</p>
                             </div>
                         </div>
 
-                        <form onSubmit={handleSaveProperty} className="space-y-6">
-                            <div className="grid md:grid-cols-2 gap-6">
+                        <form onSubmit={handleSaveProperty} className="space-y-5 sm:space-y-6">
+                            <div className="grid gap-5 sm:gap-6 md:grid-cols-2">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Nombre de la UH Remanufactura</label>
+                                    <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Nombre de la UH</label>
                                     <div className="relative group">
                                         <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                         <input
                                             type="text"
                                             value={propertyForm.name}
                                             onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
-                                            className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium"
+                                            className="w-full pl-12 pr-4 py-3.5 sm:py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium"
                                             placeholder="Nombre de la UH"
                                         />
                                     </div>
@@ -237,7 +241,7 @@ export const ConfiguracionPage = () => {
                                             type="text"
                                             value={propertyForm.address}
                                             onChange={(e) => setPropertyForm({ ...propertyForm, address: e.target.value })}
-                                            className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium"
+                                            className="w-full pl-12 pr-4 py-3.5 sm:py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium"
                                             placeholder="Ej: Calle 123 # 45-67"
                                         />
                                     </div>
@@ -246,7 +250,7 @@ export const ConfiguracionPage = () => {
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className="px-8 py-3 rounded-xl bg-mantty-secondary text-white font-bold text-sm hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-mantty-secondary/20"
+                                className="w-full sm:w-auto px-8 py-3.5 sm:py-3 rounded-xl bg-mantty-secondary text-white font-bold text-sm hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-mantty-secondary/20 active:scale-[0.98]"
                             >
                                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                 Actualizar Propiedad
@@ -257,20 +261,20 @@ export const ConfiguracionPage = () => {
 
                 {activeTab === 'plan' && (
                     <div className="space-y-6">
-                        <div className={`p-8 rounded-[2.5rem] border relative overflow-hidden ${plan === 'basic' ? 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-white/5' :
+                        <div className={`p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] border relative overflow-hidden ${plan === 'basic' ? 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-white/5' :
                             plan === 'plus' ? 'bg-mantty-primary/5 border-mantty-primary/20 shadow-xl shadow-mantty-primary/5' :
                                 'bg-mantty-secondary/5 border-mantty-secondary/20 shadow-xl shadow-mantty-secondary/5'
                             }`}>
-                            <div className="absolute top-0 right-0 p-8 opacity-10">
-                                <Shield className="w-32 h-32" />
+                            <div className="absolute top-0 right-0 p-6 sm:p-8 opacity-10">
+                                <Shield className="w-20 h-20 sm:w-32 sm:h-32" />
                             </div>
 
                             <div className="relative z-10">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
                                     <div className="space-y-1">
                                         <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Plan Actual</h3>
                                         <div className="flex items-center gap-3">
-                                            <span className="text-4xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">
+                                            <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">
                                                 {currentPlanInfo.name}
                                             </span>
                                             {isPro && (
@@ -280,37 +284,37 @@ export const ConfiguracionPage = () => {
                                             )}
                                         </div>
                                     </div>
-                                    <button className="px-6 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 text-slate-900 dark:text-white font-black text-xs hover:bg-slate-50 transition-all uppercase tracking-widest">
+                                    <button className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 text-slate-900 dark:text-white font-black text-xs hover:bg-slate-50 transition-all uppercase tracking-widest active:scale-[0.98]">
                                         Cambiar Plan
                                     </button>
                                 </div>
 
-                                <div className="grid md:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-3 gap-3 sm:gap-6">
                                     <PlanDetailCard
-                                        label="Capacidad base"
+                                        label="Base"
                                         value={`${currentPlanInfo.maxUHs} UH`}
                                         icon={<Building2 className="w-4 h-4" />}
                                     />
                                     <PlanDetailCard
-                                        label="Paquetes Extra"
+                                        label="Extra"
                                         value={`${extraUhCapacity} UH`}
                                         icon={<Package className="w-4 h-4" />}
                                     />
                                     <PlanDetailCard
-                                        label="Capacidad Total"
+                                        label="Total"
                                         value={`${currentPlanInfo.maxUHs + (extraUhCapacity || 0)} UH`}
                                         icon={<CheckCircle2 className="w-4 h-4" />}
                                         highlight
                                     />
                                 </div>
 
-                                <div className="mt-10 p-6 rounded-3xl bg-white/50 dark:bg-slate-950/40 border border-slate-200 dark:border-white/10">
-                                    <h4 className="text-sm font-bold mb-4 text-slate-900 dark:text-white">Funciones Incluidas</h4>
-                                    <div className="grid sm:grid-cols-2 gap-3">
+                                <div className="mt-6 sm:mt-10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/50 dark:bg-slate-950/40 border border-slate-200 dark:border-white/10">
+                                    <h4 className="text-sm font-bold mb-3 sm:mb-4 text-slate-900 dark:text-white">Funciones Incluidas</h4>
+                                    <div className="grid sm:grid-cols-2 gap-2 sm:gap-3">
                                         {currentPlanInfo.features.map((f, i) => (
                                             <div key={i} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                                                <CheckCircle2 className="w-4 h-4 text-mantty-primary" />
-                                                {f}
+                                                <CheckCircle2 className="w-4 h-4 text-mantty-primary shrink-0" />
+                                                <span className="text-xs sm:text-sm">{f}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -327,7 +331,7 @@ export const ConfiguracionPage = () => {
 const TabButton = ({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) => (
     <button
         onClick={onClick}
-        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${active
+        className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap active:scale-[0.97] ${active
             ? 'bg-white dark:bg-slate-800 text-mantty-primary shadow-sm ring-1 ring-slate-200 dark:ring-white/10'
             : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
             }`}
@@ -338,15 +342,15 @@ const TabButton = ({ active, onClick, icon, label }: { active: boolean, onClick:
 );
 
 const PlanDetailCard = ({ label, value, icon, highlight = false }: { label: string, value: string, icon: React.ReactNode, highlight?: boolean }) => (
-    <div className={`p-5 rounded-3xl border flex flex-col gap-2 ${highlight
+    <div className={`p-3 sm:p-5 rounded-2xl sm:rounded-3xl border flex flex-col gap-1 sm:gap-2 ${highlight
         ? 'bg-mantty-primary/10 border-mantty-primary/20 text-mantty-primary'
         : 'bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-white/5 text-slate-500'
         }`}>
         <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">{label}</span>
             {icon}
         </div>
-        <span className={`text-2xl font-black ${highlight ? 'text-mantty-primary' : 'text-slate-900 dark:text-white'}`}>
+        <span className={`text-lg sm:text-2xl font-black ${highlight ? 'text-mantty-primary' : 'text-slate-900 dark:text-white'}`}>
             {value}
         </span>
     </div>

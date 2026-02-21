@@ -4,12 +4,8 @@ import {
     UserPlus,
     Copy,
     Check,
-    Shield,
-    User as UserIcon,
-    Trash2,
     Mail,
     Loader2,
-    QrCode,
     Download,
     Send
 } from 'lucide-react';
@@ -72,25 +68,25 @@ export const UserManagement = () => {
             const { error } = await supabase
                 .from('invitations')
                 .insert({
-                    ph_id: propertyId,
+                    property_id: propertyId,
                     role: inviteRole,
                     code,
                     expires_at: expiresAt.toISOString(),
-                    // created_by: handled by RLS/Trigger usually, or add if schema requires
                 });
 
             if (error) throw error;
 
             // 2. Generate Link
             const baseUrl = window.location.origin;
-            // Matches the AuthPage logic we built: /auth?join=PH_ID&code=CODE&ph=NAME
-            const link = `${baseUrl}/auth?join=${propertyId}&code=${code}&ph=${encodeURIComponent(propertyName)}`;
+            // Matches the AuthPage logic we built: /auth?join=PROP_ID&code=CODE&uh=NAME
+            const link = `${baseUrl}/auth?join=${propertyId}&code=${code}&uh=${encodeURIComponent(propertyName)}`;
 
             setInviteLink(link);
             toast.success("Enlace de invitación generado exitosamente");
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error generating invite:', error);
-            toast.error("Error al generar invitación", { description: error.message });
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            toast.error("Error al generar invitación", { description: message });
         } finally {
             setIsGenerating(false);
         }
@@ -110,11 +106,11 @@ export const UserManagement = () => {
 
         setIsSendingEmail(true);
         try {
-            const { data, error } = await supabase.functions.invoke('send-invite', {
+            const { error } = await supabase.functions.invoke('send-invite', {
                 body: {
                     email: emailToObject,
                     inviteLink,
-                    phName: propertyName, // In production, ensure this is accurate
+                    uhName: propertyName, // In production, ensure this is accurate
                     role: inviteRole
                 }
             });
@@ -123,9 +119,10 @@ export const UserManagement = () => {
 
             toast.success(`Invitación enviada a ${emailToObject}`);
             setEmailToObject('');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error sending email:', error);
-            toast.error("Error al enviar correo", { description: error.message });
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            toast.error("Error al enviar correo", { description: message });
         } finally {
             setIsSendingEmail(false);
         }
@@ -161,14 +158,14 @@ export const UserManagement = () => {
     return (
         <div className="space-y-6 animate-mantty-fade-in">
             {/* Invite Card */}
-            <div className="glassmorphism rounded-[2.5rem] p-8 border border-slate-200 dark:border-white/5 bg-white dark:bg-transparent shadow-sm">
+            <div className="glassmorphism rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 border border-slate-200 dark:border-white/5 bg-white dark:bg-transparent shadow-sm">
                 <div className="flex items-center gap-4 mb-6">
                     <div className="w-12 h-12 rounded-2xl bg-mantty-primary/10 flex items-center justify-center text-mantty-primary">
                         <UserPlus className="w-6 h-6" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Invitar Usuarios</h3>
-                        <p className="text-slate-500 text-sm">Genera enlaces para residentes o proveedores.</p>
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Invitar Usuarios</h3>
+                        <p className="text-slate-500 text-xs sm:text-sm">Genera enlaces para residentes o proveedores.</p>
                     </div>
                 </div>
 
@@ -176,12 +173,12 @@ export const UserManagement = () => {
                     {/* Role Selection */}
                     <div className="space-y-2">
                         <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Rol a invitar</label>
-                        <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl">
+                        <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl overflow-x-auto">
                             {(['residente', 'proveedor', 'admin_uh'] as AppRole[]).map((r) => (
                                 <button
                                     key={r}
                                     onClick={() => { setInviteRole(r); setInviteLink(null); }}
-                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all capitalize ${inviteRole === r
+                                    className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all capitalize whitespace-nowrap active:scale-[0.97] ${inviteRole === r
                                         ? 'bg-white dark:bg-slate-800 text-mantty-primary shadow-sm'
                                         : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                                         }`}
@@ -196,7 +193,7 @@ export const UserManagement = () => {
                     <button
                         onClick={generateInvite}
                         disabled={isGenerating}
-                        className="w-full py-3 rounded-xl mantty-gradient text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-mantty-primary/20"
+                        className="w-full py-3.5 rounded-xl mantty-gradient text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-mantty-primary/20 active:scale-[0.98]"
                     >
                         {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                         Generar Enlace
@@ -213,7 +210,7 @@ export const UserManagement = () => {
                                     <input
                                         readOnly
                                         value={inviteLink}
-                                        className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl px-4 text-xs font-mono text-slate-600 dark:text-slate-300 focus:outline-none"
+                                        className="flex-1 min-w-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-3 text-xs font-mono text-slate-600 dark:text-slate-300 focus:outline-none truncate"
                                     />
                                     <button
                                         onClick={copyToClipboard}
@@ -276,7 +273,7 @@ export const UserManagement = () => {
             </div>
 
             {/* User List Placeholder - To be implemented fully */}
-            <div className="glassmorphism rounded-[2.5rem] p-8 border border-slate-200 dark:border-white/5 bg-white dark:bg-transparent shadow-sm opacity-50 cursor-not-allowed grayscale">
+            <div className="glassmorphism rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 border border-slate-200 dark:border-white/5 bg-white dark:bg-transparent shadow-sm opacity-50 cursor-not-allowed grayscale">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
                         <Users className="w-6 h-6" />

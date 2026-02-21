@@ -23,7 +23,7 @@ serve(async (req) => {
         if (userError || !user) throw new Error('No autorizado')
 
         // Parse body
-        const { name, address, city, phone } = await req.json()
+        const { name, address } = await req.json()
 
         if (!name || !address) {
             throw new Error('Faltan campos obligatorios: nombre y dirección')
@@ -88,10 +88,11 @@ serve(async (req) => {
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
         )
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
         console.error('Error create-ph:', error)
         return new Response(
-            JSON.stringify({ error: error.message }),
+            JSON.stringify({ error: message }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
         )
     }

@@ -31,6 +31,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         applyTheme(theme);
         localStorage.setItem('mantty-theme', theme);
 
+        // Update meta theme-color
+        const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+            metaThemeColor.setAttribute('content', isDark ? '#020617' : '#f8fafc');
+        }
+
         if (theme === 'system') {
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
             const handleChange = () => applyTheme('system');

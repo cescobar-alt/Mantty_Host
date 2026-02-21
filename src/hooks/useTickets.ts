@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -21,7 +21,7 @@ export const useTickets = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchTickets = async () => {
+    const fetchTickets = useCallback(async () => {
         if (!user || !propertyId) return;
 
         setLoading(true);
@@ -39,13 +39,14 @@ export const useTickets = () => {
             const { data, error: sbError } = await query.order('created_at', { ascending: false });
 
             if (sbError) throw sbError;
-            setTickets(data || []);
-        } catch (err: any) {
-            setError(err.message);
+            setTickets((data || []) as Ticket[]);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            setError(message);
         } finally {
             setLoading(false);
         }
-    };
+    }, [user, propertyId, role]);
 
     useEffect(() => {
         if (user && propertyId) {
@@ -71,7 +72,7 @@ export const useTickets = () => {
                             }
                         } else if (payload.eventType === 'UPDATE') {
                             setTickets((prev) =>
-                                prev.map((t) => (t.id === payload.new.id ? { ...t, ...payload.new } : t))
+                                prev.map((t) => (t.id === payload.new.id ? { ...t, ...payload.new as Partial<Ticket> } : t))
                             );
                         } else if (payload.eventType === 'DELETE') {
                             setTickets((prev) => prev.filter((t) => t.id !== payload.old.id));
@@ -84,7 +85,7 @@ export const useTickets = () => {
                 supabase.removeChannel(channel);
             };
         }
-    }, [user, propertyId, role]);
+    }, [user, propertyId, role, fetchTickets]);
 
     return { tickets, loading, error, refresh: fetchTickets };
 };

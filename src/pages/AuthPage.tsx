@@ -5,6 +5,12 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
+interface AuthMetadata {
+    full_name: string;
+    invite_code?: string;
+    invite_uh_id?: string;
+}
+
 const AuthPage = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
@@ -52,7 +58,7 @@ const AuthPage = () => {
                 // Navigation happens in useEffect when user state changes
             } else {
                 // REGISTER FLOW
-                const metaData: any = {
+                const metaData: AuthMetadata = {
                     full_name: fullName,
                 };
 
@@ -83,21 +89,22 @@ const AuthPage = () => {
                     setIsLogin(true); // Switch back to login to show the message nicely or wait
                 }
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Auth Error:', err);
-            setError(err.message === 'Invalid login credentials'
+            const message = err instanceof Error ? err.message : 'Ocurrió un error al procesar tu solicitud.';
+            setError(message === 'Invalid login credentials'
                 ? 'Credenciales inválidas.'
-                : err.message || 'Ocurrió un error al procesar tu solicitud.');
+                : message);
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col justify-center items-center px-4 transition-colors duration-300 relative">
+        <div className="min-h-screen bg-white dark:bg-[#020617] flex flex-col justify-center items-center px-4 py-8 transition-all duration-500 relative safe-area-top safe-area-bottom">
             <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="absolute top-8 right-8 p-3 rounded-2xl bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-mantty-primary transition-all"
+                className="absolute top-4 right-4 sm:top-8 sm:right-8 p-3 rounded-2xl bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-mantty-primary transition-all active:scale-95"
             >
                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
@@ -129,7 +136,7 @@ const AuthPage = () => {
                     )}
                 </div>
 
-                <div className="glassmorphism rounded-3xl p-8 border border-white/5 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl">
+                <div className="glassmorphism rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 dark:border-white/5 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl">
                     {/* Toggle Login/Register */}
                     {!inviteCode && (
                         <div className="flex p-1 bg-slate-100 dark:bg-slate-950/50 rounded-xl mb-6">
@@ -165,7 +172,7 @@ const AuthPage = () => {
                                         required={!isLogin}
                                         value={fullName}
                                         onChange={(e) => setFullName(e.target.value)}
-                                        className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400"
+                                        className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-3.5 sm:py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400"
                                         placeholder="Ej: Juan Pérez"
                                     />
                                 </div>
@@ -181,7 +188,7 @@ const AuthPage = () => {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400"
+                                    className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-3.5 sm:py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400"
                                     placeholder="usuario@ejemplo.com"
                                 />
                             </div>
@@ -196,7 +203,7 @@ const AuthPage = () => {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400"
+                                    className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-3.5 sm:py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400"
                                     placeholder="••••••••"
                                     minLength={6}
                                 />
@@ -218,7 +225,7 @@ const AuthPage = () => {
                         <button
                             disabled={isLoading}
                             type="submit"
-                            className="w-full py-3.5 rounded-2xl mantty-gradient text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-mantty-primary/20 mt-4"
+                            className="w-full py-4 sm:py-3.5 rounded-2xl mantty-gradient text-white font-bold text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-mantty-primary/20 mt-4 active:scale-[0.98]"
                         >
                             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isLogin ? 'Iniciar Sesión' : 'Crear Cuenta')}
                         </button>

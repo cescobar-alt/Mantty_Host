@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Bell, Check, Clock, Inbox } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { Bell, Check, Clock, Inbox, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
@@ -21,7 +21,7 @@ export const NotificationBell = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    const fetchNotifications = async () => {
+    const fetchNotifications = useCallback(async () => {
         if (!user) return;
         const { data, error } = await supabase
             .from('notifications')
@@ -34,11 +34,20 @@ export const NotificationBell = () => {
             setNotifications(data);
             setUnreadCount(data.filter(n => !n.is_read).length);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
-        fetchNotifications();
+        let isMounted = true;
+        const load = async () => {
+            if (isMounted) {
+                await fetchNotifications();
+            }
+        };
+        load();
+        return () => { isMounted = false; };
+    }, [fetchNotifications]);
 
+    useEffect(() => {
         if (!user) return;
 
         // Realtime subscription
@@ -62,7 +71,17 @@ export const NotificationBell = () => {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [user]);
+    }, [user, fetchNotifications]);
+
+    // Prevent body scroll when notification panel is open on mobile
+    useEffect(() => {
+        if (isOpen && window.innerWidth < 1024) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [isOpen]);
 
     const markAsRead = async (id: string) => {
         const { error } = await supabase
@@ -96,7 +115,8 @@ export const NotificationBell = () => {
         <div className="relative">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="relative p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 hover:text-mantty-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group shadow-sm"
+                className="relative p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 hover:text-mantty-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group shadow-sm active:scale-95"
+                aria-label="Notificaciones"
             >
                 <Bell className={`w-5 h-5 ${unreadCount > 0 ? 'animate-mantty-swing' : ''}`} />
                 {unreadCount > 0 && (
@@ -106,27 +126,57 @@ export const NotificationBell = () => {
 
             {isOpen && (
                 <>
+                    {/* Backdrop */}
                     <div
-                        className="fixed inset-0 z-40"
+                        className="fixed inset-0 z-40 bg-black/20 lg:bg-transparent"
                         onClick={() => setIsOpen(false)}
                     />
-                    <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-[1.5rem] shadow-2xl z-50 animate-mantty-slide-up overflow-hidden">
+
+                    {/* Panel: Mobile = bottom sheet, Desktop = dropdown */}
+                    <div className="
+                        fixed lg:absolute
+                        bottom-0 left-0 right-0 lg:bottom-auto lg:left-auto lg:right-0 lg:top-full
+                        lg:mt-3 lg:w-80
+                        glassmorphism
+                        border-0 lg:border border-slate-200 dark:border-white/10
+                        rounded-t-[1.5rem] lg:rounded-[1.5rem]
+                        shadow-2xl z-50 animate-slide-up-panel lg:animate-mantty-slide-up
+                        overflow-hidden max-h-[80vh] lg:max-h-[500px]
+                    ">
+                        {/* Mobile handle */}
+                        <div className="lg:hidden flex justify-center pt-3 pb-1">
+                            <div className="w-10 h-1 bg-slate-300 dark:bg-slate-700 rounded-full" />
+                        </div>
+
                         <div className="p-4 border-b border-slate-100 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-transparent">
                             <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                 <Bell className="w-4 h-4 text-mantty-primary" />
                                 Notificaciones
+                                {unreadCount > 0 && (
+                                    <span className="text-xs font-black bg-blue-500 text-white px-2 py-0.5 rounded-full">
+                                        {unreadCount}
+                                    </span>
+                                )}
                             </h3>
-                            {unreadCount > 0 && (
+                            <div className="flex items-center gap-2">
+                                {unreadCount > 0 && (
+                                    <button
+                                        onClick={markAllAsRead}
+                                        className="text-[10px] font-black uppercase tracking-wider text-mantty-primary hover:opacity-80 transition-opacity px-2 py-1"
+                                    >
+                                        marcar todo
+                                    </button>
+                                )}
                                 <button
-                                    onClick={markAllAsRead}
-                                    className="text-[10px] font-black uppercase tracking-wider text-mantty-primary hover:opacity-80 transition-opacity"
+                                    onClick={() => setIsOpen(false)}
+                                    className="lg:hidden p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
                                 >
-                                    marcar todo
+                                    <X className="w-4 h-4" />
                                 </button>
-                            )}
+                            </div>
                         </div>
 
-                        <div className="max-h-[400px] overflow-y-auto">
+                        <div className="overflow-y-auto max-h-[60vh] lg:max-h-[400px]">
                             {notifications.length === 0 ? (
                                 <div className="p-8 text-center">
                                     <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3">
@@ -138,7 +188,7 @@ export const NotificationBell = () => {
                                 notifications.map(n => (
                                     <div
                                         key={n.id}
-                                        className={`p-4 border-b border-slate-50 dark:border-white/5 flex gap-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer relative ${!n.is_read ? 'bg-mantty-primary/5' : ''}`}
+                                        className={`p-4 border-b border-slate-50 dark:border-white/5 flex gap-4 hover:bg-slate-50 dark:hover:bg-white/5 active:bg-slate-100 dark:active:bg-white/10 transition-colors cursor-pointer relative ${!n.is_read ? 'bg-mantty-primary/5' : ''}`}
                                         onClick={() => markAsRead(n.id)}
                                     >
                                         <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${n.type === 'assignment' ? 'bg-blue-500/10 text-blue-500' : 'bg-mantty-primary/10 text-mantty-primary'
@@ -156,7 +206,7 @@ export const NotificationBell = () => {
                                                 {n.created_at ? (() => {
                                                     try {
                                                         return formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: es });
-                                                    } catch (e) {
+                                                    } catch {
                                                         return 'hace un momento';
                                                     }
                                                 })() : 'hace un momento'}
@@ -171,8 +221,8 @@ export const NotificationBell = () => {
                         </div>
 
                         {notifications.length > 0 && (
-                            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 text-center border-t border-slate-100 dark:border-white/5">
-                                <button className="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-mantty-primary transition-colors">
+                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 text-center border-t border-slate-100 dark:border-white/5 safe-area-bottom">
+                                <button className="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-mantty-primary transition-colors py-2">
                                     Ver todas las notificaciones
                                 </button>
                             </div>
