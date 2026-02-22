@@ -172,7 +172,7 @@ const AuthPage = () => {
                                         required={!isLogin}
                                         value={fullName}
                                         onChange={(e) => setFullName(e.target.value)}
-                                        className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-3.5 sm:py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400"
+                                        className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-2.5 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400 text-sm"
                                         placeholder="Ej: Juan Pérez"
                                     />
                                 </div>
@@ -188,7 +188,7 @@ const AuthPage = () => {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-3.5 sm:py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400"
+                                    className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-2.5 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400 text-sm"
                                     placeholder="usuario@ejemplo.com"
                                 />
                             </div>
@@ -203,7 +203,7 @@ const AuthPage = () => {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-3.5 sm:py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400"
+                                    className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl py-2.5 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-mantty-primary/50 outline-none transition-all placeholder:text-slate-400 text-sm"
                                     placeholder="••••••••"
                                     minLength={6}
                                 />

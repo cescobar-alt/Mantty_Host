@@ -83,7 +83,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 flex overflow-hidden transition-colors duration-500">
             {/* =================== Desktop Sidebar =================== */}
             <aside className="hidden lg:flex w-72 border-r border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/40 p-8 flex-col shrink-0">
-                <NavLink to="/" className="flex items-center gap-4 mb-14 px-2 hover:opacity-80 transition-opacity">
+                <NavLink to="/dashboard" className="flex items-center gap-4 mb-14 px-2 hover:opacity-80 transition-opacity">
                     <div className="w-10 h-10 mantty-gradient rounded-2xl flex items-center justify-center shadow-xl shadow-mantty-primary/20">
                         <HousePlus className="text-white w-6 h-6" />
                     </div>
@@ -163,7 +163,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
             {/* =================== Mobile Top Bar =================== */}
             <div className="lg:hidden fixed top-0 left-0 w-full z-50 glassmorphism border-b border-slate-200 dark:border-white/5 px-4 py-3 flex justify-between items-center safe-area-top">
-                <NavLink to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <NavLink to="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <div className="w-8 h-8 mantty-gradient rounded-lg flex items-center justify-center">
                         <HousePlus className="text-white w-5 h-5" />
                     </div>

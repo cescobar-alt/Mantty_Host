@@ -193,7 +193,7 @@ export const UserManagement = () => {
                     <button
                         onClick={generateInvite}
                         disabled={isGenerating}
-                        className="w-full py-3.5 rounded-xl mantty-gradient text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-mantty-primary/20 active:scale-[0.98]"
+                        className="w-full py-2.5 rounded-xl mantty-gradient text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-mantty-primary/20 active:scale-[0.98] text-sm"
                     >
                         {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                         Generar Enlace
@@ -210,7 +210,7 @@ export const UserManagement = () => {
                                     <input
                                         readOnly
                                         value={inviteLink}
-                                        className="flex-1 min-w-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-3 text-xs font-mono text-slate-600 dark:text-slate-300 focus:outline-none truncate"
+                                        className="flex-1 min-w-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-600 dark:text-slate-300 focus:outline-none truncate"
                                     />
                                     <button
                                         onClick={copyToClipboard}
@@ -234,7 +234,7 @@ export const UserManagement = () => {
                                                 value={emailToObject}
                                                 onChange={(e) => setEmailToObject(e.target.value)}
                                                 placeholder="usuario@email.com"
-                                                className="w-full pl-9 pr-3 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm outline-none focus:ring-1 focus:ring-mantty-primary"
+                                                className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm outline-none focus:ring-1 focus:ring-mantty-primary"
                                             />
                                         </div>
                                         <button

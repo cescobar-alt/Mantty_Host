@@ -175,7 +175,7 @@ export const ConfiguracionPage = () => {
                                             type="text"
                                             value={profileData.full_name}
                                             onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })}
-                                            className="w-full pl-12 pr-4 py-3.5 sm:py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium"
+                                            className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium text-sm"
                                             placeholder="Tu nombre completo"
                                         />
                                     </div>
@@ -188,7 +188,7 @@ export const ConfiguracionPage = () => {
                                             type="email"
                                             value={profileData.email}
                                             disabled
-                                            className="w-full pl-12 pr-4 py-3.5 sm:py-3 rounded-xl bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 text-slate-500 cursor-not-allowed font-medium"
+                                            className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 text-slate-500 cursor-not-allowed font-medium text-sm"
                                         />
                                     </div>
                                     <p className="text-[10px] text-slate-400 ml-1 italic">* El correo no se puede cambiar</p>
@@ -228,7 +228,7 @@ export const ConfiguracionPage = () => {
                                             type="text"
                                             value={propertyForm.name}
                                             onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
-                                            className="w-full pl-12 pr-4 py-3.5 sm:py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium"
+                                            className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium text-sm"
                                             placeholder="Nombre de la UH"
                                         />
                                     </div>
@@ -241,7 +241,7 @@ export const ConfiguracionPage = () => {
                                             type="text"
                                             value={propertyForm.address}
                                             onChange={(e) => setPropertyForm({ ...propertyForm, address: e.target.value })}
-                                            className="w-full pl-12 pr-4 py-3.5 sm:py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium"
+                                            className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium text-sm"
                                             placeholder="Ej: Calle 123 # 45-67"
                                         />
                                     </div>

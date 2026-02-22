@@ -120,7 +120,7 @@ export const PropertySelector = () => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200
+                    w-full flex items-center gap-3 px-4 py-2 rounded-2xl transition-all duration-200
                     bg-white dark:bg-slate-900/60 border shadow-sm
                     hover:shadow-md active:scale-[0.99]
                     ${isOpen

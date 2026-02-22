@@ -75,12 +75,12 @@ export const AdminPHView = () => {
                 <div className="flex flex-wrap gap-3 w-full md:w-auto">
                     <button
                         onClick={handleExport}
-                        className="flex-1 md:flex-none px-6 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group shadow-sm"
+                        className="flex-1 md:flex-none px-6 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group shadow-sm"
                     >
                         <Inbox className="w-4 h-4" />
                         Gestionar
                     </button>
-                    <button className="flex-1 md:flex-none px-6 py-3 rounded-2xl mantty-gradient text-white font-bold text-sm hover:opacity-90 transition-all shadow-xl shadow-mantty-primary/25 flex items-center justify-center gap-2">
+                    <button className="flex-1 md:flex-none px-6 py-2 rounded-2xl mantty-gradient text-white font-bold text-sm hover:opacity-90 transition-all shadow-xl shadow-mantty-primary/25 flex items-center justify-center gap-2">
                         <Plus className="w-4 h-4" />
                         Nueva Solicitud
                     </button>

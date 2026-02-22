@@ -9,7 +9,7 @@ export const BottomNavigation = () => {
         { icon: LayoutDashboard, label: 'Inicio', path: '/dashboard' },
         { icon: Ticket, label: 'Tickets', path: '/dashboard/tickets' },
         { icon: Building2, label: 'Propiedad', path: '/dashboard/propiedad' },
-        { icon: Settings, label: 'Config', path: '/dashboard/configuracion' },
+        { icon: Settings, label: 'Config', path: '/dashboard/settings' },
     ];
 
     return (
@@ -24,8 +24,8 @@ export const BottomNavigation = () => {
                             key={item.path}
                             onClick={() => navigate(item.path)}
                             className={`flex flex-col items-center justify-center gap-1 w-full h-full transition-all relative ${isActive
-                                    ? 'text-mantty-primary'
-                                    : 'text-slate-400 dark:text-slate-500 active:scale-90'
+                                ? 'text-mantty-primary'
+                                : 'text-slate-400 dark:text-slate-500 active:scale-90'
                                 }`}
                         >
                             <div className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-mantty-primary/10' : ''}`}>

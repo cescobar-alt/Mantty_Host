@@ -10,5 +10,17 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient<Database>(
     supabaseUrl || 'https://placeholder.supabase.co',
-    supabaseAnonKey || 'placeholder'
+    supabaseAnonKey || 'placeholder',
+    {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            // Bypass Navigator LockManager to prevent NavigatorLockAcquireTimeoutError
+            // especially common in development with HMR or multiple tabs
+            lock: async (_name, _timeout, fn) => {
+                return await fn();
+            }
+        }
+    }
 );

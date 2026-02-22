@@ -13,7 +13,9 @@ const OnboardingPage = () => {
         name: '',
         address: '',
         city: '',
-        phone: ''
+        phone: '',
+        owner_name: '',
+        uh_type: 'residencial'
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -26,15 +28,25 @@ const OnboardingPage = () => {
         try {
             // 1. Create the Unidad Habitacional (UH) via Edge Function
             const { data: { session } } = await supabase.auth.getSession();
+
+            if (!session) {
+                console.error('No session found for onboarding. Is user logged in?');
+                throw new Error('Sesión no encontrada. Por favor, inicia sesión de nuevo.');
+            }
+
+            console.log('Invocando create-uh con sesión activa:', session.user.email);
+
             const { data, error } = await supabase.functions.invoke('create-uh', {
                 body: {
                     name: uhData.name,
                     address: uhData.address,
                     city: uhData.city,
-                    phone: uhData.phone
+                    phone: uhData.phone,
+                    owner_name: uhData.owner_name,
+                    uh_type: uhData.uh_type
                 },
                 headers: {
-                    Authorization: `Bearer ${session?.access_token}`
+                    'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
                 }
             });
 
@@ -61,13 +73,13 @@ const OnboardingPage = () => {
             </div>
 
             <div className="max-w-md w-full relative z-10">
-                <div className="text-center mb-6 sm:mb-10">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 mantty-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-mantty-primary/20">
-                        <Building2 className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                <div className="text-center mb-6 sm:mb-8">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 dark:bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-2xl backdrop-blur-xl border border-white/20">
+                        <img src="/favicon.svg" alt="Mantty Logo" className="w-10 h-10 sm:w-12 sm:h-12" />
                     </div>
-                    <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-1">¡Bienvenido!</h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-medium px-4 text-xs sm:text-base">
-                        Configuremos tu primera Unidad Habitacional (UH).
+                    <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">¡Bienvenido!</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-semibold px-4 text-xs sm:text-sm">
+                        Configura tu primera Unidad Habitacional (UH).
                     </p>
                 </div>
 
@@ -79,8 +91,8 @@ const OnboardingPage = () => {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                        <div className="space-y-1.5">
-                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Nombre de la UH</label>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Nombre de la UH</label>
                             <div className="relative group">
                                 <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-mantty-primary transition-colors" />
                                 <input
@@ -88,14 +100,14 @@ const OnboardingPage = () => {
                                     required
                                     value={uhData.name}
                                     onChange={(e) => setUhData({ ...uhData, name: e.target.value })}
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium text-sm"
+                                    className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/30 transition-all font-medium text-sm"
                                     placeholder="Ej: Residencial Horizonte"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-1.5">
-                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Dirección Exacta</label>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Dirección Exacta</label>
                             <div className="relative group">
                                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-mantty-primary transition-colors" />
                                 <input
@@ -103,34 +115,62 @@ const OnboardingPage = () => {
                                     required
                                     value={uhData.address}
                                     onChange={(e) => setUhData({ ...uhData, address: e.target.value })}
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium text-sm"
-                                    placeholder="Calle 123 # 45-67"
+                                    className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/30 transition-all font-medium text-sm"
+                                    placeholder="Ej: Calle 123 # 45-67"
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                            <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Ciudad</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Ciudad</label>
                                 <input
                                     type="text"
                                     required
                                     value={uhData.city}
                                     onChange={(e) => setUhData({ ...uhData, city: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium text-sm"
-                                    placeholder="Bogotá"
+                                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/30 transition-all font-medium text-sm"
+                                    placeholder="Ej: Envigado"
                                 />
                             </div>
-                            <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Teléfono</label>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Teléfono</label>
                                 <input
                                     type="tel"
                                     required
                                     value={uhData.phone}
                                     onChange={(e) => setUhData({ ...uhData, phone: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/50 transition-all font-medium text-sm"
-                                    placeholder="601..."
+                                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/30 transition-all font-medium text-sm"
+                                    placeholder="604..."
                                 />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Propietario</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={uhData.owner_name}
+                                    onChange={(e) => setUhData({ ...uhData, owner_name: e.target.value })}
+                                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/30 transition-all font-medium text-sm"
+                                    placeholder="Nombre completo"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Tipo de UH</label>
+                                <select
+                                    required
+                                    value={uhData.uh_type}
+                                    onChange={(e) => setUhData({ ...uhData, uh_type: e.target.value })}
+                                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-primary/30 transition-all font-medium text-sm appearance-none"
+                                >
+                                    <option value="residencial">Residencial</option>
+                                    <option value="comercial">Comercial</option>
+                                    <option value="mixto">Mixto</option>
+                                    <option value="otro">Otro</option>
+                                </select>
                             </div>
                         </div>
 

@@ -65,12 +65,12 @@ export const AdminUHView = () => {
                 <div className="flex gap-3 w-full">
                     <button
                         onClick={handleExport}
-                        className="flex-1 sm:flex-none px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group shadow-sm active:scale-[0.98]"
+                        className="flex-1 sm:flex-none px-5 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group shadow-sm active:scale-[0.98]"
                     >
                         <Inbox className="w-4 h-4" />
                         <span className="hidden sm:inline">Gestionar</span>
                     </button>
-                    <button className="flex-1 sm:flex-none px-5 py-3 rounded-2xl mantty-gradient text-white font-bold text-sm hover:opacity-90 transition-all shadow-xl shadow-mantty-primary/25 flex items-center justify-center gap-2 active:scale-[0.98]">
+                    <button className="flex-1 sm:flex-none px-5 py-2 rounded-2xl mantty-gradient text-white font-bold text-sm hover:opacity-90 transition-all shadow-xl shadow-mantty-primary/25 flex items-center justify-center gap-2 active:scale-[0.98]">
                         <Plus className="w-4 h-4" />
                         Nueva Solicitud
                     </button>
