@@ -7,7 +7,8 @@ import {
     Mail,
     Loader2,
     Download,
-    Send
+    Send,
+    Trash2
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase';
@@ -384,8 +385,8 @@ export const UserManagement = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${u.role === 'admin_uh' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' :
-                                                    u.role === 'proveedor' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
-                                                        'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                                u.role === 'proveedor' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                                                    'bg-emerald-50 text-emerald-600 border border-emerald-100'
                                                 }`}>
                                                 {u.role?.replace('_', ' ')}
                                             </span>

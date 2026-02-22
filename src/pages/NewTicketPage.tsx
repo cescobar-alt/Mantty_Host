@@ -11,6 +11,7 @@ import {
     CheckCircle2
 } from 'lucide-react';
 import { useTickets } from '../hooks/useTickets';
+import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 
 export const NewTicketPage = () => {
@@ -22,8 +23,9 @@ export const NewTicketPage = () => {
         title: '',
         description: '',
         priority: 'media',
-        image_url: ''
     });
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,19 +35,46 @@ export const NewTicketPage = () => {
             return;
         }
 
-        const result = await createTicket({
-            title: formData.title,
-            description: formData.description,
-            priority: formData.priority,
-            image_url: formData.image_url || null
-        });
+        setUploading(true);
+        let imageUrl = null;
 
-        if (result.success) {
-            setIsSuccess(true);
-            toast.success('Solicitud enviada correctamente');
-            setTimeout(() => navigate('/dashboard'), 2000);
-        } else {
-            toast.error(result.error || 'Error al enviar la solicitud');
+        try {
+            if (selectedFile) {
+                const fileExt = selectedFile.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const filePath = `${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('evidences')
+                    .upload(filePath, selectedFile);
+
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('evidences')
+                    .getPublicUrl(filePath);
+
+                imageUrl = publicUrl;
+            }
+
+            const result = await createTicket({
+                title: formData.title,
+                description: formData.description,
+                priority: formData.priority,
+                image_url: imageUrl
+            });
+
+            if (result.success) {
+                setIsSuccess(true);
+                toast.success('Solicitud enviada correctamente');
+                setTimeout(() => navigate('/dashboard'), 2000);
+            } else {
+                toast.error(result.error || 'Error al enviar la solicitud');
+            }
+        } catch (error: any) {
+            toast.error('Error al subir la imagen: ' + error.message);
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -116,8 +145,8 @@ export const NewTicketPage = () => {
                                     type="button"
                                     onClick={() => setFormData({ ...formData, priority: p })}
                                     className={`py-2 px-3 rounded-xl border text-[10px] font-black uppercase tracking-wider transition-all ${formData.priority === p
-                                            ? 'bg-mantty-primary text-white border-mantty-primary shadow-lg shadow-mantty-primary/20'
-                                            : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-white/5 text-slate-500'
+                                        ? 'bg-mantty-primary text-white border-mantty-primary shadow-lg shadow-mantty-primary/20'
+                                        : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-white/5 text-slate-500'
                                         }`}
                                 >
                                     {p}
@@ -140,16 +169,30 @@ export const NewTicketPage = () => {
                         </div>
                     </div>
 
-                    {/* Image Placeholder (Mock) */}
+                    {/* Image Upload */}
                     <div className="space-y-2">
                         <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Adjuntar evidencia (opcional)</label>
-                        <div className="border-2 border-dashed border-slate-200 dark:border-white/5 rounded-2xl p-8 flex flex-col items-center justify-center text-slate-400 hover:text-mantty-primary hover:border-mantty-primary/50 transition-all cursor-pointer bg-slate-50/50 dark:bg-white/2 group">
+                        <input
+                            type="file"
+                            id="file-upload"
+                            accept="image/*"
+                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                            className="hidden"
+                        />
+                        <label
+                            htmlFor="file-upload"
+                            className="border-2 border-dashed border-slate-200 dark:border-white/5 rounded-2xl p-8 flex flex-col items-center justify-center text-slate-400 hover:text-mantty-primary hover:border-mantty-primary/50 transition-all cursor-pointer bg-slate-50/50 dark:bg-white/2 group"
+                        >
                             <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                                 <ImageIcon className="w-6 h-6" />
                             </div>
-                            <span className="text-xs font-bold uppercase tracking-widest">Subir Imagen</span>
-                            <p className="text-[10px] mt-1">Máximo 5MB</p>
-                        </div>
+                            <span className="text-xs font-bold uppercase tracking-widest">
+                                {selectedFile ? selectedFile.name : 'Subir Imagen'}
+                            </span>
+                            <p className="text-[10px] mt-1">
+                                {selectedFile ? `${(selectedFile.size / 1024).toFixed(0)} KB` : 'Máximo 5MB'}
+                            </p>
+                        </label>
                     </div>
                 </div>
 
@@ -163,11 +206,11 @@ export const NewTicketPage = () => {
                     </button>
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || uploading}
                         className="flex-[2] py-4 rounded-2xl mantty-gradient text-white font-bold text-sm hover:opacity-90 transition-all shadow-xl shadow-mantty-primary/20 flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50"
                     >
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                        Enviar Solicitud
+                        {loading || uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                        {uploading ? 'Subiendo...' : 'Enviar Solicitud'}
                     </button>
                 </div>
             </form>
