@@ -140,6 +140,10 @@ export type Database = {
                     id: string
                     logo_url: string | null
                     name: string
+                    city: string | null
+                    phone: string | null
+                    owner_name: string | null
+                    uh_type: string | null
                 }
                 Insert: {
                     address?: string | null
@@ -148,6 +152,10 @@ export type Database = {
                     id?: string
                     logo_url?: string | null
                     name: string
+                    city?: string | null
+                    phone?: string | null
+                    owner_name?: string | null
+                    uh_type?: string | null
                 }
                 Update: {
                     address?: string | null
@@ -156,6 +164,10 @@ export type Database = {
                     id?: string
                     logo_url?: string | null
                     name?: string
+                    city?: string | null
+                    phone?: string | null
+                    owner_name?: string | null
+                    uh_type?: string | null
                 }
                 Relationships: [
                     {

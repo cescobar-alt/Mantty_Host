@@ -12,7 +12,10 @@ import {
     AlertTriangle,
     Mail,
     MapPin,
-    Package
+    Package,
+    Phone,
+    UserCheck,
+    Tag
 } from 'lucide-react';
 import { PLANS } from '../lib/business-rules';
 import { useProperties } from '../hooks/useProperties';
@@ -37,6 +40,10 @@ export const ConfiguracionPage = () => {
     const [propertyForm, setPropertyForm] = useState({
         name: '',
         address: '',
+        city: '',
+        phone: '',
+        owner_name: '',
+        uh_type: 'residencial',
     });
 
     useEffect(() => {
@@ -53,6 +60,10 @@ export const ConfiguracionPage = () => {
             setPropertyForm({
                 name: sbProperty.name || '',
                 address: sbProperty.address || '',
+                city: sbProperty.city || '',
+                phone: sbProperty.phone || '',
+                owner_name: sbProperty.owner_name || '',
+                uh_type: sbProperty.uh_type || 'residencial',
             });
         }
     }, [sbProperty]);
@@ -244,6 +255,70 @@ export const ConfiguracionPage = () => {
                                             className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium text-sm"
                                             placeholder="Ej: Calle 123 # 45-67"
                                         />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Ciudad</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <input
+                                            type="text"
+                                            value={propertyForm.city}
+                                            onChange={(e) => setPropertyForm({ ...propertyForm, city: e.target.value })}
+                                            className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium text-sm"
+                                            placeholder="Ej: Envigado"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Teléfono</label>
+                                    <div className="relative">
+                                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <input
+                                            type="tel"
+                                            value={propertyForm.phone}
+                                            onChange={(e) => setPropertyForm({ ...propertyForm, phone: e.target.value })}
+                                            className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium text-sm"
+                                            placeholder="Teléfono de contacto"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Representante / Propietario</label>
+                                    <div className="relative">
+                                        <UserCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <input
+                                            type="text"
+                                            value={propertyForm.owner_name}
+                                            onChange={(e) => setPropertyForm({ ...propertyForm, owner_name: e.target.value })}
+                                            className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium text-sm"
+                                            placeholder="Nombre del responsable"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Tipo de UH</label>
+                                    <div className="relative">
+                                        <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <select
+                                            value={propertyForm.uh_type}
+                                            onChange={(e) => setPropertyForm({ ...propertyForm, uh_type: e.target.value })}
+                                            className="w-full pl-12 pr-10 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-white/5 focus:outline-none focus:ring-2 focus:ring-mantty-secondary/50 transition-all font-medium text-sm appearance-none"
+                                        >
+                                            <option value="residencial">Residencial</option>
+                                            <option value="comercial">Comercial</option>
+                                            <option value="mixto">Mixto</option>
+                                            <option value="otro">Otro</option>
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
