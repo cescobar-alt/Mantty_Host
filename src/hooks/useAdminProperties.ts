@@ -8,7 +8,7 @@ import type { Tables } from '../types/database.types';
 export type AdminProperty = Tables<'properties'>;
 
 export const useAdminProperties = () => {
-    const { user, propertyId, plan, extraUhCapacity, refreshProfile } = useAuth();
+    const { user, propertyId, setPropertyId, plan, extraUhCapacity, refreshProfile } = useAuth();
 
     const {
         data: properties = [],
@@ -54,6 +54,7 @@ export const useAdminProperties = () => {
         if (!user || newPropertyId === propertyId) return { success: true };
         try {
             await switchMutation.mutateAsync(newPropertyId);
+            setPropertyId(newPropertyId); // Manually update local state for immediate response
             return { success: true };
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Error switching property';

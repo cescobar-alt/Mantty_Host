@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Users, Settings, ClipboardList } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const BottomNavigation = () => {
@@ -8,7 +8,8 @@ export const BottomNavigation = () => {
     const { role } = useAuth();
 
     const navItems = [
-        { icon: LayoutDashboard, label: 'Inicio', path: '/dashboard' },
+        { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+        { icon: ClipboardList, label: 'Solicitudes', path: '/dashboard/requests' },
         { icon: PlusCircle, label: 'Nuevo', path: '/dashboard/new' },
         ...(role === 'admin_uh' || role === 'superadmin'
             ? [{ icon: Users, label: 'Usuarios', path: '/dashboard/users' }]

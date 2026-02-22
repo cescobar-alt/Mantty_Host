@@ -2,9 +2,20 @@ import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import type { Tables } from '../types/database.types';
 
-export type Ticket = Tables<'tickets'>;
+export interface Ticket {
+    id: number;
+    created_at: string;
+    title: string;
+    description: string | null;
+    status: string | null;
+    priority: string | null;
+    image_url: string | null;
+    property_id: string | null;
+    created_by: string | null;
+    assigned_to: string | null;
+    space_location?: string | null;
+}
 
 export const useTickets = () => {
     const { user, propertyId, role } = useAuth();
@@ -136,16 +147,64 @@ export const useTickets = () => {
         }
     };
 
+    const updateTicketMutation = useMutation({
+        mutationFn: async ({ id, updates }: { id: number; updates: Partial<Ticket> }) => {
+            const { data, error } = await supabase
+                .from('tickets')
+                .update(updates)
+                .eq('id', id)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data as Ticket;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tickets', propertyId] });
+        },
+    });
+
+    const updateTicket = async (id: number, updates: Partial<Ticket>) => {
+        try {
+            const result = await updateTicketMutation.mutateAsync({ id, updates });
+            return { success: true, data: result };
+        } catch (err: any) {
+            console.error('Update Ticket Error:', err);
+            return { success: false, error: err?.message || 'Error updating ticket' };
+        }
+    };
+
     const error = queryError instanceof Error ? queryError.message :
         createTicketMutation.error instanceof Error ? createTicketMutation.error.message :
-            null;
+            updateTicketMutation.error instanceof Error ? updateTicketMutation.error.message :
+                null;
 
     return {
         tickets,
-        loading: loading || createTicketMutation.isPending,
+        loading: loading || createTicketMutation.isPending || updateTicketMutation.isPending,
         error,
         createTicket,
+        updateTicket,
         refresh: refetch
     };
 };
 
+export const useTicket = (id: string | number | undefined) => {
+    const { data: ticket, isLoading: loading, error } = useQuery({
+        queryKey: ['ticket', id],
+        queryFn: async () => {
+            if (!id) return null;
+            const { data, error } = await supabase
+                .from('tickets')
+                .select('*')
+                .eq('id', Number(id))
+                .single();
+
+            if (error) throw error;
+            return data as Ticket;
+        },
+        enabled: !!id,
+    });
+
+    return { ticket, loading, error };
+};

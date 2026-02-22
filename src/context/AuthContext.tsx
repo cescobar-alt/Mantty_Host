@@ -13,6 +13,7 @@ interface AuthContextType {
     isLoading: boolean;
     signOut: () => Promise<void>;
     refreshProfile: () => Promise<void>;
+    setPropertyId: (id: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,15 +47,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             if (data) {
-                console.log('Profile fetched successfully:', data.role);
+                console.log('Profile fetched successfully. Current property:', data.property_id);
                 setRole(data.role as UserRole);
                 setPlan(data.plan as PlanType);
-                setPropertyId(data.property_id);
                 setExtraUhCapacity(data.extra_uh_capacity || 0);
-                if (data.property_id) {
-                    localStorage.setItem('mantty_property_id', data.property_id);
-                } else {
-                    localStorage.removeItem('mantty_property_id');
+
+                // Only update propertyId if it's different to avoid redundant re-renders
+                // or if we want to ensure sync with DB. 
+                // Note: manual setPropertyId might have already updated this.
+                if (data.property_id !== propertyId) {
+                    setPropertyId(data.property_id);
+                    if (data.property_id) {
+                        localStorage.setItem('mantty_property_id', data.property_id);
+                    } else {
+                        localStorage.removeItem('mantty_property_id');
+                    }
                 }
             }
         } catch (error) {
@@ -137,6 +144,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const updatePropertyId = (id: string | null) => {
+        setPropertyId(id);
+        if (id) {
+            localStorage.setItem('mantty_property_id', id);
+        } else {
+            localStorage.removeItem('mantty_property_id');
+        }
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -147,7 +163,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             extraUhCapacity,
             isLoading,
             signOut,
-            refreshProfile
+            refreshProfile,
+            setPropertyId: updatePropertyId
         }}>
             {children}
         </AuthContext.Provider>

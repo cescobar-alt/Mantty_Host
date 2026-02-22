@@ -7,6 +7,7 @@ import {
     Bell,
     Settings,
     Users,
+    ClipboardList,
     Sun,
     Moon
 } from 'lucide-react';
@@ -61,7 +62,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     }, [isMobileMenuOpen]);
 
     const menuItems = [
-        { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Resumen', path: '/dashboard' },
+        { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard', path: '/dashboard' },
+        { icon: <ClipboardList className="w-5 h-5" />, label: 'Solicitudes', path: '/dashboard/requests' },
         { icon: <PlusCircle className="w-5 h-5" />, label: 'Nueva Solicitud', path: '/dashboard/new' },
         ...(role === 'admin_uh' || role === 'superadmin' ? [
             { icon: <Users className="w-5 h-5" />, label: 'Usuarios', path: '/dashboard/users' }

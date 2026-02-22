@@ -25,7 +25,10 @@ export const ResidentView = () => {
                     <p className="text-slate-600 dark:text-slate-400 text-sm">Reporta un daño o solicita un servicio técnico.</p>
                 </button>
 
-                <button className="p-8 glassmorphism rounded-3xl border border-slate-100 dark:border-white/5 hover:border-slate-200 dark:hover:border-white/20 transition-all group shadow-sm">
+                <button
+                    onClick={() => navigate('/dashboard/requests')}
+                    className="p-8 glassmorphism rounded-3xl border border-slate-100 dark:border-white/5 hover:border-slate-200 dark:hover:border-white/20 transition-all group shadow-sm text-left"
+                >
                     <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
                         <Clock className="w-6 h-6 text-slate-600 dark:text-slate-300" />
                     </div>

@@ -8,6 +8,8 @@ import { ConfiguracionPage } from './ConfiguracionPage';
 import { UserManagement } from '../components/UserManagement';
 import { AdminUHView } from '../components/dashboard/AdminUHView';
 import { NewTicketPage } from './NewTicketPage';
+import { GestionSolicitudesPage } from './GestionSolicitudesPage';
+import { TicketDetailPage } from './TicketDetailPage';
 import LoadingScreen from '../components/LoadingScreen';
 
 const DashboardHome = () => {
@@ -68,6 +70,8 @@ export const DashboardPage = () => {
                 <Route path="alerts" element={<DashboardHome />} />
                 <Route path="settings" element={<ConfiguracionPage />} />
                 <Route path="users" element={<UserManagement />} />
+                <Route path="requests" element={<GestionSolicitudesPage />} />
+                <Route path="tickets/:id" element={<TicketDetailPage />} />
                 <Route path="*" element={<DashboardHome />} />
             </Routes>
         </DashboardLayout>

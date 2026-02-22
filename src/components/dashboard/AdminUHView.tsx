@@ -9,7 +9,6 @@ import {
     Clock,
     BarChart3
 } from 'lucide-react';
-import { exportReports } from '../../lib/export-utils';
 import { MiniStatCard } from './MiniStatCard';
 import { IncidentCard } from './IncidentCard';
 import { VoiceReporter } from './VoiceReporter';
@@ -23,17 +22,6 @@ export const AdminUHView = () => {
     const navigate = useNavigate();
     const { tickets, loading } = useTickets();
 
-    const handleExport = () => {
-        const reportData = tickets.map(t => ({
-            id: t.id,
-            title: t.title,
-            status: t.status || 'pendiente',
-            priority: t.priority || 'media',
-            created_at: t.created_at,
-            resident: 'N/A'
-        }));
-        exportReports.toPDF(reportData);
-    };
 
     // Calculate real stats
     const stats = {
@@ -66,7 +54,7 @@ export const AdminUHView = () => {
 
                 <div className="flex gap-3 w-full">
                     <button
-                        onClick={handleExport}
+                        onClick={() => navigate('/dashboard/requests')}
                         className="flex-1 sm:flex-none px-5 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group shadow-sm active:scale-[0.98]"
                     >
                         <Inbox className="w-4 h-4" />
