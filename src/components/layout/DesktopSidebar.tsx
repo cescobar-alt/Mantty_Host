@@ -1,9 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import {
-    HousePlus,
-    ChevronRight,
-} from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { UserCard } from './UserCard';
+import { ManttyLogo } from '../common/ManttyLogo';
 
 interface MenuItem {
     icon: React.ReactNode;
@@ -21,9 +19,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ menuItems }) => 
     return (
         <aside className="hidden lg:flex w-72 border-r border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/40 p-8 flex-col shrink-0">
             <NavLink to="/dashboard" className="flex items-center gap-4 mb-14 px-2 hover:opacity-80 transition-opacity">
-                <div className="w-10 h-10 mantty-gradient rounded-2xl flex items-center justify-center shadow-xl shadow-mantty-primary/20">
-                    <HousePlus className="text-white w-6 h-6" />
-                </div>
+                <ManttyLogo size="md" />
                 <span className="font-extrabold text-2xl tracking-tight">Mantty</span>
             </NavLink>
 

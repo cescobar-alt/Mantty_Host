@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-    HousePlus,
     ArrowRight,
     Shield,
     Radio,
@@ -21,6 +20,7 @@ import { useEffect, useState } from 'react';
 import { PLANS } from '../lib/business-rules';
 import SEO from '../components/SEO';
 import { useTheme } from '../context/ThemeContext';
+import { ManttyLogo } from '../components/common/ManttyLogo';
 
 const LandingPage = () => {
     const { user } = useAuth();
@@ -112,9 +112,7 @@ const LandingPage = () => {
             <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/50 dark:border-white/5 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl safe-area-top">
                 <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
                     <NavLink to={user ? "/dashboard" : "/"} className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 mantty-gradient rounded-xl flex items-center justify-center shadow-lg shadow-mantty-primary/20">
-                            <HousePlus className="text-white w-5 h-5 sm:w-6 sm:h-6" />
-                        </div>
+                        <ManttyLogo size="md" />
                         <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white italic">
                             MANTTY<span className="text-mantty-primary font-light">HOST</span>
                         </span>
@@ -314,9 +312,7 @@ const LandingPage = () => {
             <footer className="border-t border-slate-200 dark:border-white/5 py-12 sm:py-20">
                 <div className="container mx-auto px-4 sm:px-6 flex flex-col items-center gap-8 sm:gap-10 md:flex-row md:justify-between">
                     <NavLink to={user ? "/dashboard" : "/"} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                        <div className="w-8 h-8 mantty-gradient rounded-lg flex items-center justify-center">
-                            <HousePlus className="text-white w-5 h-5" />
-                        </div>
+                        <ManttyLogo size="sm" />
                         <span className="font-black text-xl italic text-slate-900 dark:text-white">MANTTY<span className="text-mantty-primary font-light text-sm tracking-[0.3em] not-italic ml-2 uppercase">Host</span></span>
                     </NavLink>
 

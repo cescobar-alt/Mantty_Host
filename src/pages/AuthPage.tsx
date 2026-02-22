@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
-import { HousePlus, Mail, Lock, Loader2, Sun, Moon, User, Ticket } from 'lucide-react';
+import { Mail, Lock, Loader2, Sun, Moon, User, Ticket } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { ManttyLogo } from '../components/common/ManttyLogo';
 
 interface AuthMetadata {
     full_name: string;
@@ -111,8 +112,8 @@ const AuthPage = () => {
 
             <div className="w-full max-w-md animate-mantty-fade-in">
                 <div className="text-center mb-8">
-                    <NavLink to="/" className="inline-flex items-center justify-center w-16 h-16 mantty-gradient rounded-2xl shadow-xl shadow-mantty-primary/20 mb-6 hover:scale-105 transition-transform">
-                        <HousePlus className="text-white w-8 h-8" />
+                    <NavLink to="/" className="inline-flex mb-6 hover:scale-105 transition-transform">
+                        <ManttyLogo size="lg" />
                     </NavLink>
 
                     {inviteCode && inviteUhName ? (

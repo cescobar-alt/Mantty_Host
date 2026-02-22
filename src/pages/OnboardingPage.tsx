@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Building2, MapPin, Loader2, ArrowRight } from 'lucide-react';
+import { ManttyLogo } from '../components/common/ManttyLogo';
 
 const OnboardingPage = () => {
     const { user, refreshProfile } = useAuth();
@@ -74,8 +75,8 @@ const OnboardingPage = () => {
 
             <div className="max-w-md w-full relative z-10">
                 <div className="text-center mb-6 sm:mb-8">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 dark:bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-2xl backdrop-blur-xl border border-white/20">
-                        <img src="/favicon.svg" alt="Mantty Logo" className="w-10 h-10 sm:w-12 sm:h-12" />
+                    <div className="inline-flex mb-6 animate-mantty-bounce-in">
+                        <ManttyLogo size="xl" />
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">¡Bienvenido!</h1>
                     <p className="text-slate-500 dark:text-slate-400 font-semibold px-4 text-xs sm:text-sm">

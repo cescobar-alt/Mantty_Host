@@ -5,11 +5,11 @@
       <stop offset="100%" style="stop-color:#008D36;stop-opacity:1" />
     </linearGradient>
   </defs>
-  <!-- Background: Squircle -->
-  <rect x="0" y="0" width="512" height="512" rx="120" ry="120" fill="url(#mantty-gradient)" />
+  <!-- Background: Squircle (Rounded Square) -->
+  <rect x="0" y="0" width="512" height="512" rx="140" ry="140" fill="url(#mantty-gradient)" />
   
-  <!-- Icon: House with Plus -->
-  <g transform="translate(106, 116) scale(12.5)" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Icon: House with Plus (Exact Lucide house-plus paths) -->
+  <g transform="translate(102, 102) scale(12.8)" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
     <path d="M13.22 2.846a3 3 0 0 0-2.44 0L5.28 5.088A3 3 0 0 0 3 7.915V19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7.915a3 3 0 0 0-2.28-2.827l-5.5-2.242Z" />
     <path d="M11 16h4" />
     <path d="M13 14v4" />
