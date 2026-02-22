@@ -124,7 +124,7 @@ export const AdminUHView = () => {
                     <div className="min-w-[130px] lg:min-w-0 snap-start">
                         <MiniStatCard
                             label="Eficiencia"
-                            value="92%"
+                            value={loading ? '...' : `${tickets.length > 0 ? Math.round((stats.completed / tickets.length) * 100) : 0}%`}
                             icon={<TrendingUp className="w-4 h-4 text-mantty-secondary" />}
                             color="secondary"
                         />
@@ -162,7 +162,10 @@ export const AdminUHView = () => {
 
                     {/* Community Overview */}
                     <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-10">
-                        <CommunityWidget residentsCount={124} providersCount={12} />
+                        <CommunityWidget
+                            residentsCount={tickets.length > 0 ? new Set(tickets.map(t => t.created_by)).size : 0}
+                            providersCount={tickets.length > 0 ? new Set(tickets.filter(t => t.assigned_to).map(t => t.assigned_to)).size : 0}
+                        />
                         <OperationalStatusWidget efficiency={85} />
                     </div>
                 </div>

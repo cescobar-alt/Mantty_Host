@@ -118,7 +118,14 @@
     background-image: radial-gradient(at 0% 0%, rgba(34, 177, 76, 0.03) 0, transparent 50%),
       radial-gradient(at 100% 100%, rgba(0, 141, 54, 0.03) 0, transparent 50%);
     background-attachment: fixed;
+    touch-action: manipulation;
   }
+
+  button,
+  a {
+    touch-action: manipulation;
+  }
+
 
   .dark body {
     @apply bg-[#020617] text-slate-50;
@@ -126,12 +133,23 @@
       radial-gradient(at 100% 100%, rgba(0, 141, 54, 0.05) 0, transparent 50%);
   }
 
-  /* Apply transition to all common elements */
-  *,
-  ::before,
-  ::after {
-    transition: var(--transition-theme);
-    border-color: var(--color-border);
+  /* Apply theme transition to structural elements only (not *) */
+  body,
+  nav,
+  aside,
+  main,
+  header,
+  section,
+  footer,
+  div,
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+      color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   ::selection {

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +9,15 @@ export type Ticket = Tables<'tickets'>;
 export const useTickets = () => {
     const { user, propertyId, role } = useAuth();
     const queryClient = useQueryClient();
+    const prevPropertyIdRef = useRef(propertyId);
+
+    // Clear stale cache when tenant changes
+    useEffect(() => {
+        if (prevPropertyIdRef.current && prevPropertyIdRef.current !== propertyId) {
+            queryClient.removeQueries({ queryKey: ['tickets', prevPropertyIdRef.current] });
+        }
+        prevPropertyIdRef.current = propertyId;
+    }, [propertyId, queryClient]);
 
     const {
         data: tickets = [],
@@ -36,11 +45,13 @@ export const useTickets = () => {
         enabled: !!user && !!propertyId,
     });
 
+    // Realtime subscription with unique channel per property
     useEffect(() => {
         if (!user || !propertyId) return;
 
+        const channelName = `tickets_${propertyId}`;
         const channel = supabase
-            .channel('tickets_changes')
+            .channel(channelName)
             .on(
                 'postgres_changes',
                 {
@@ -74,12 +85,24 @@ export const useTickets = () => {
             )
             .subscribe();
 
+        // Pause realtime when app goes to background (saves battery on mobile PWA)
+        const handleVisibility = () => {
+            if (document.hidden) {
+                supabase.removeChannel(channel);
+            } else {
+                refetch();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+
         return () => {
+            document.removeEventListener('visibilitychange', handleVisibility);
             supabase.removeChannel(channel);
         };
-    }, [user, propertyId, role, queryClient]);
+    }, [user, propertyId, role, queryClient, refetch]);
 
     const error = queryError instanceof Error ? queryError.message : null;
 
     return { tickets, loading, error, refresh: refetch };
 };
+

@@ -63,6 +63,8 @@ export const DashboardPage = () => {
         <DashboardLayout>
             <Routes>
                 <Route index element={<DashboardHome />} />
+                <Route path="new" element={<DashboardHome />} />
+                <Route path="alerts" element={<DashboardHome />} />
                 <Route path="settings" element={<ConfiguracionPage />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="*" element={<DashboardHome />} />

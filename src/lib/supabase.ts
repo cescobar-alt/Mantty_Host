@@ -5,12 +5,15 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Supabase URL or Anon Key missing in environment variables. Check your .env file.');
+    throw new Error(
+        'Missing Supabase environment variables. ' +
+        'Copy .env.example to .env and fill in your project credentials.'
+    );
 }
 
 export const supabase = createClient<Database>(
-    supabaseUrl || 'https://placeholder.supabase.co',
-    supabaseAnonKey || 'placeholder',
+    supabaseUrl,
+    supabaseAnonKey,
     {
         auth: {
             persistSession: true,

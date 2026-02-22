@@ -6,11 +6,25 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+npm_error.log
 
+# Dependencies
 node_modules
+
+# Build output
 dist
 dist-ssr
 *.local
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build artifacts & debug output
+lint_output*.txt
+lint_results*.json
+tsc_output*.txt
 
 # Editor directories and files
 .vscode/*

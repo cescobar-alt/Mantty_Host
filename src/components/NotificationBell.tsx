@@ -67,7 +67,7 @@ export const NotificationBell = () => {
         if (!user) return;
 
         const channel = supabase
-            .channel('notifications_changes')
+            .channel(`notifications_${user.id}`)
             .on(
                 'postgres_changes',
                 {
@@ -82,7 +82,18 @@ export const NotificationBell = () => {
             )
             .subscribe();
 
+        // Pause realtime in background to save battery on mobile PWA
+        const handleVisibility = () => {
+            if (document.hidden) {
+                supabase.removeChannel(channel);
+            } else {
+                queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+
         return () => {
+            document.removeEventListener('visibilitychange', handleVisibility);
             supabase.removeChannel(channel);
         };
     }, [user, queryClient]);

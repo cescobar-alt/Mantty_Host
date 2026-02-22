@@ -6,10 +6,11 @@ import SEO from './components/SEO';
 import './index.css';
 
 import React, { Suspense } from 'react';
-import LandingPage from './pages/LandingPage';
-import DashboardPage from './pages/DashboardPage';
-import AuthPage from './pages/AuthPage';
-import OnboardingPage from './pages/OnboardingPage';
+
+const LandingPage = React.lazy(() => import('./pages/LandingPage'));
+const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
+const AuthPage = React.lazy(() => import('./pages/AuthPage'));
+const OnboardingPage = React.lazy(() => import('./pages/OnboardingPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {

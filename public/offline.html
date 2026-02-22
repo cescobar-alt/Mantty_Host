@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sin Conexión - Mantty Host</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mantty-primary: #10b981;
+            --mantty-secondary: #0ea5e9;
+            --mantty-dark: #0f172a;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            background: white;
+            padding: 40px;
+            border-radius: 32px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            background: #ecfdf5;
+            color: var(--mantty-primary);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 900;
+            margin: 0 0 12px;
+            color: var(--mantty-dark);
+        }
+
+        p {
+            font-size: 16px;
+            color: #64748b;
+            line-height: 1.6;
+            margin: 0 0 32px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--mantty-primary), var(--mantty-secondary));
+            color: white;
+            text-decoration: none;
+            padding: 12px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="icon-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 20 4 4" />
+                <path d="m19 13 3-3" />
+                <path d="m5 13-3-3" />
+                <path d="m2 10 3-3" />
+                <path d="m22 10-3-3" />
+                <path d="M12 2v2" />
+                <path d="m7.2 6.3 1.4 1.4" />
+                <path d="m16.8 6.3-1.4 1.4" />
+                <path d="M12 22a7 7 0 0 0 7-7" />
+                <path d="M5 15a7 7 0 0 0 7 7" />
+            </svg>
+        </div>
+        <h1>Estás sin conexión</h1>
+        <p>No pudimos cargar esta página. Por favor, verifica tu conexión a internet e intenta de nuevo.</p>
+        <a href="javascript:window.location.reload()" class="btn">Reintentar</a>
+    </div>
+</body>
+
+</html>

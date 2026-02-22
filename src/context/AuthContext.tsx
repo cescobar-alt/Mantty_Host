@@ -22,7 +22,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [session, setSession] = useState<Session | null>(null);
     const [role, setRole] = useState<UserRole | null>(null);
     const [plan, setPlan] = useState<PlanType | null>(null);
-    const [propertyId, setPropertyId] = useState<string | null>(null);
+    const [propertyId, setPropertyId] = useState<string | null>(() => localStorage.getItem('mantty_property_id'));
     const [extraUhCapacity, setExtraUhCapacity] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -48,6 +48,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setPlan(data.plan as PlanType);
                 setPropertyId(data.property_id);
                 setExtraUhCapacity(data.extra_uh_capacity || 0);
+                if (data.property_id) {
+                    localStorage.setItem('mantty_property_id', data.property_id);
+                } else {
+                    localStorage.removeItem('mantty_property_id');
+                }
             }
         } catch (error) {
             console.error('Unexpected error fetching profile:', error);
@@ -94,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setRole(null);
                 setPlan(null);
                 setPropertyId(null);
+                localStorage.removeItem('mantty_property_id');
             }
             setIsLoading(false);
         });
@@ -107,6 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const signOut = async () => {
         setIsLoading(true);
+        localStorage.removeItem('mantty_property_id');
         await supabase.auth.signOut();
     };
 

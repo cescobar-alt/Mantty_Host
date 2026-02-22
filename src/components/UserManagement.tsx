@@ -178,7 +178,8 @@ export const UserManagement = () => {
                                 <button
                                     key={r}
                                     onClick={() => { setInviteRole(r); setInviteLink(null); }}
-                                    className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all capitalize whitespace-nowrap active:scale-[0.97] ${inviteRole === r
+                                    style={{ touchAction: 'manipulation' }}
+                                    className={`flex-1 py-3.5 text-xs font-bold rounded-lg transition-all capitalize whitespace-nowrap active:scale-[0.97] ${inviteRole === r
                                         ? 'bg-white dark:bg-slate-800 text-mantty-primary shadow-sm'
                                         : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                                         }`}
@@ -214,9 +215,10 @@ export const UserManagement = () => {
                                     />
                                     <button
                                         onClick={copyToClipboard}
-                                        className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl hover:text-mantty-primary transition-colors"
+                                        style={{ touchAction: 'manipulation' }}
+                                        className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl hover:text-mantty-primary transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center"
                                     >
-                                        {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                        {copied ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
                                     </button>
                                 </div>
                             </div>
@@ -240,12 +242,13 @@ export const UserManagement = () => {
                                         <button
                                             type="submit"
                                             disabled={isSendingEmail}
-                                            className="p-3 bg-mantty-secondary text-white rounded-xl hover:opacity-90 disabled:opacity-50 transition-all shadow-md shadow-mantty-secondary/20"
+                                            style={{ touchAction: 'manipulation' }}
+                                            className="p-4 bg-mantty-secondary text-white rounded-xl hover:opacity-90 disabled:opacity-50 transition-all shadow-md shadow-mantty-secondary/20 min-w-[48px] min-h-[48px] flex items-center justify-center"
                                         >
-                                            {isSendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                                            {isSendingEmail ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                                         </button>
                                     </form>
-                                    <p className="text-[10px] text-slate-400 italic">Se enviará el enlace directamente a este correo.</p>
+                                    <p className="text-[10px] text-slate-400 italic px-1">Se enviará el enlace directamente a este correo.</p>
                                 </div>
 
                                 {/* QR Code */}
@@ -261,9 +264,10 @@ export const UserManagement = () => {
                                     </div>
                                     <button
                                         onClick={downloadQRCode}
-                                        className="text-xs font-bold text-slate-500 hover:text-mantty-primary flex items-center gap-1 transition-colors"
+                                        style={{ touchAction: 'manipulation' }}
+                                        className="text-xs font-bold text-slate-500 hover:text-mantty-primary flex items-center gap-2 transition-colors py-3 px-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 min-h-[44px]"
                                     >
-                                        <Download className="w-3 h-3" /> Descargar QR
+                                        <Download className="w-4 h-4" /> Descargar QR
                                     </button>
                                 </div>
                             </div>

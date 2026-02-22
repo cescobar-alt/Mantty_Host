@@ -12,6 +12,50 @@ export const ROLES: Record<UserRole, { description: string }> = {
     proveedor: { description: 'Personal externo encargado de realizar los mantenimientos técnicos.' },
 };
 
+export interface RoleDisplayConfig {
+    label: string;
+    badgeText: string;
+    badgeClasses: string;
+}
+
+export const ROLE_DISPLAY: Record<UserRole, RoleDisplayConfig> = {
+    superadmin: {
+        label: 'Super Administrador',
+        badgeText: 'SUPER',
+        badgeClasses: 'text-purple-600 bg-purple-100',
+    },
+    admin_uh: {
+        label: 'Administrador UH',
+        badgeText: 'ADMIN',
+        badgeClasses: 'text-mantty-primary bg-mantty-primary/10',
+    },
+    residente: {
+        label: 'Residente',
+        badgeText: 'RESIDENTE',
+        badgeClasses: 'text-emerald-600 bg-emerald-100',
+    },
+    proveedor: {
+        label: 'Proveedor Técnico',
+        badgeText: 'PRO',
+        badgeClasses: 'text-amber-600 bg-amber-100',
+    },
+};
+
+export const getRoleLabel = (role: string | null | undefined): string => {
+    if (role && role in ROLE_DISPLAY) {
+        return ROLE_DISPLAY[role as UserRole].label;
+    }
+    return 'Usuario';
+};
+
+export const getRoleBadge = (role: string | null | undefined) => {
+    if (role && role in ROLE_DISPLAY) {
+        const config = ROLE_DISPLAY[role as UserRole];
+        return { text: config.badgeText, classes: config.badgeClasses };
+    }
+    return { text: role?.toUpperCase() || 'USER', classes: 'text-slate-500 bg-slate-100' };
+};
+
 interface PlanConfig {
     name: string;
     maxUHs: number;

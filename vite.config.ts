@@ -11,7 +11,7 @@ export default defineConfig({
         tailwindcss(),
         VitePWA({
             registerType: 'autoUpdate',
-            includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'favicon.ico'],
+            includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'favicon.ico', 'offline.html'],
             manifest: {
                 name: 'Mantty Host',
                 short_name: 'Mantty',
@@ -43,7 +43,38 @@ export default defineConfig({
                 skipWaiting: true,
                 clientsClaim: true,
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+                navigateFallback: 'offline.html',
                 runtimeCaching: [
+                    {
+                        // Cache Supabase REST API (stale-while-revalidate)
+                        urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/v1\/.*/i,
+                        handler: 'StaleWhileRevalidate',
+                        options: {
+                            cacheName: 'supabase-api',
+                            expiration: {
+                                maxEntries: 100,
+                                maxAgeSeconds: 60 * 60 // 1 hour
+                            },
+                            cacheableResponse: {
+                                statuses: [0, 200]
+                            }
+                        }
+                    },
+                    {
+                        // Cache Google Fonts
+                        urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+                        handler: 'CacheFirst',
+                        options: {
+                            cacheName: 'google-fonts',
+                            expiration: {
+                                maxEntries: 10,
+                                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                            },
+                            cacheableResponse: {
+                                statuses: [0, 200]
+                            }
+                        }
+                    },
                     {
                         urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
                         handler: 'CacheFirst',
