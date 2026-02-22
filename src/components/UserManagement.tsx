@@ -12,12 +12,14 @@ import {
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 type AppRole = 'residente' | 'proveedor' | 'admin_uh';
 
 export const UserManagement = () => {
-    const { role, plan, propertyId } = useAuth();
+    const { role, plan, propertyId, user: currentUser } = useAuth();
+    const queryClient = useQueryClient();
     const [inviteRole, setInviteRole] = useState<AppRole>('residente');
     const [isGenerating, setIsGenerating] = useState(false);
     const [inviteLink, setInviteLink] = useState<string | null>(null);
@@ -41,7 +43,49 @@ export const UserManagement = () => {
         fetchPropertyName();
     }, [propertyId]);
 
-    // Fetch user count logic would go here (omitted for brevity as we focus on invite)
+    // Fetch users in the current UH
+    const { data: users, isLoading: usersLoading } = useQuery({
+        queryKey: ['uh-users', propertyId],
+        queryFn: async () => {
+            if (!propertyId) return [];
+
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('property_id', propertyId)
+                .order('full_name', { ascending: true });
+
+            if (error) throw error;
+            return data;
+        },
+        enabled: !!propertyId,
+    });
+
+    const deleteUserMutation = useMutation({
+        mutationFn: async (userId: string) => {
+            if (!propertyId) return;
+            // For now, we just unlink the user from the property
+            const { error } = await supabase
+                .from('profiles')
+                .update({ property_id: null, role: 'residente' })
+                .eq('id', userId);
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['uh-users', propertyId] });
+            toast.success("Usuario removido de la propiedad");
+        },
+        onError: (error: any) => {
+            toast.error("Error al remover usuario", { description: error.message });
+        }
+    });
+
+    const handleDeleteUser = (userId: string, userName: string) => {
+        if (confirm(`¿Estás seguro de remover a ${userName} de esta propiedad?`)) {
+            deleteUserMutation.mutate(userId);
+        }
+    };
 
     const isPro = plan === 'plus' || plan === 'max';
 
@@ -276,19 +320,90 @@ export const UserManagement = () => {
                 </div>
             </div>
 
-            {/* User List Placeholder - To be implemented fully */}
-            <div className="glassmorphism rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 border border-slate-200 dark:border-white/5 bg-white dark:bg-transparent shadow-sm opacity-50 cursor-not-allowed grayscale">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                        <Users className="w-6 h-6" />
+            {/* User List */}
+            <div className="glassmorphism rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 border border-slate-200 dark:border-white/5 bg-white dark:bg-transparent shadow-sm">
+                <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-mantty-primary/10 flex items-center justify-center text-mantty-primary">
+                            <Users className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Lista de Usuarios</h3>
+                            <p className="text-slate-500 text-sm">Gestiona los miembros de {propertyName}.</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Lista de Usuarios</h3>
-                        <p className="text-slate-500 text-sm">Gestiona los permisos de los miembros actuales.</p>
+                    <div className="hidden sm:block">
+                        <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-500 text-xs font-bold border border-slate-200 dark:border-white/5">
+                            {users?.length || 0} Usuarios
+                        </span>
                     </div>
                 </div>
-                <div className="mt-8 text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded-3xl border border-dashed border-slate-200 dark:border-white/10">
-                    <p className="text-slate-400 font-medium">Lista de usuarios en construcción...</p>
+
+                <div className="overflow-x-auto -mx-5 sm:mx-0">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="border-b border-slate-100 dark:border-white/5">
+                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Usuario</th>
+                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Email</th>
+                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Rol</th>
+                                <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50 dark:divide-white/5">
+                            {usersLoading ? (
+                                Array.from({ length: 3 }).map((_, i) => (
+                                    <tr key={i} className="animate-pulse">
+                                        <td className="px-6 py-4"><div className="h-4 w-32 bg-slate-100 dark:bg-slate-800 rounded mx-auto" /></td>
+                                        <td className="px-6 py-4"><div className="h-4 w-40 bg-slate-100 dark:bg-slate-800 rounded mx-auto" /></td>
+                                        <td className="px-6 py-4"><div className="h-4 w-20 bg-slate-100 dark:bg-slate-800 rounded mx-auto" /></td>
+                                        <td className="px-6 py-4"><div className="h-8 w-8 bg-slate-100 dark:bg-slate-800 rounded ml-auto" /></td>
+                                    </tr>
+                                ))
+                            ) : users?.length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} className="py-20 text-center">
+                                        <p className="text-slate-400 font-medium italic">No hay otros usuarios en esta propiedad.</p>
+                                    </td>
+                                </tr>
+                            ) : (
+                                users?.map((u) => (
+                                    <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-white/2 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-mantty-primary text-white flex items-center justify-center text-xs font-bold uppercase">
+                                                    {u.full_name?.charAt(0) || u.email?.charAt(0) || '?'}
+                                                </div>
+                                                <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">
+                                                    {u.full_name || 'Sin nombre'}
+                                                    {u.id === currentUser?.id && <span className="ml-2 text-[10px] text-mantty-primary font-black uppercase">(Tú)</span>}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                            {u.email}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${u.role === 'admin_uh' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' :
+                                                    u.role === 'proveedor' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                                                        'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                                }`}>
+                                                {u.role?.replace('_', ' ')}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button
+                                                onClick={() => handleDeleteUser(u.id, u.full_name || u.email || 'este usuario')}
+                                                disabled={u.id === currentUser?.id || deleteUserMutation.isPending}
+                                                className="p-2 text-slate-400 hover:text-rose-500 transition-colors disabled:opacity-30"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

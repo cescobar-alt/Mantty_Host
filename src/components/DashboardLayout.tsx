@@ -9,7 +9,8 @@ import {
     Users,
     ClipboardList,
     Sun,
-    Moon
+    Moon,
+    User
 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { NotificationBell } from './NotificationBell';
@@ -69,6 +70,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             { icon: <Users className="w-5 h-5" />, label: 'Usuarios', path: '/dashboard/users' }
         ] : []),
         { icon: <Bell className="w-5 h-5" />, label: 'Alertas', path: '/dashboard/alerts' },
+        { icon: <User className="w-5 h-5" />, label: 'Mi Perfil', path: '/dashboard/profile' },
         { icon: <Settings className="w-5 h-5" />, label: 'Configuración', path: '/dashboard/settings' },
     ];
 

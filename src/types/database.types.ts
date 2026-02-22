@@ -136,37 +136,37 @@ export type Database = {
                 Row: {
                     address: string | null
                     admin_id: string | null
+                    city: string | null
                     created_at: string
                     id: string
                     logo_url: string | null
                     name: string
-                    city: string | null
-                    phone: string | null
                     owner_name: string | null
+                    phone: string | null
                     uh_type: string | null
                 }
                 Insert: {
                     address?: string | null
                     admin_id?: string | null
+                    city?: string | null
                     created_at?: string
                     id?: string
                     logo_url?: string | null
                     name: string
-                    city?: string | null
-                    phone?: string | null
                     owner_name?: string | null
+                    phone?: string | null
                     uh_type?: string | null
                 }
                 Update: {
                     address?: string | null
                     admin_id?: string | null
+                    city?: string | null
                     created_at?: string
                     id?: string
                     logo_url?: string | null
                     name?: string
-                    city?: string | null
-                    phone?: string | null
                     owner_name?: string | null
+                    phone?: string | null
                     uh_type?: string | null
                 }
                 Relationships: [
@@ -185,10 +185,12 @@ export type Database = {
                     created_at: string
                     created_by: string | null
                     description: string | null
+                    external_provider_id: string | null
                     id: number
                     image_url: string | null
                     priority: string | null
                     property_id: string | null
+                    space_location: string | null
                     status: string | null
                     title: string
                 }
@@ -197,10 +199,12 @@ export type Database = {
                     created_at?: string
                     created_by?: string | null
                     description?: string | null
+                    external_provider_id?: string | null
                     id?: number
                     image_url?: string | null
                     priority?: string | null
                     property_id?: string | null
+                    space_location?: string | null
                     status?: string | null
                     title: string
                 }
@@ -209,10 +213,12 @@ export type Database = {
                     created_at?: string
                     created_by?: string | null
                     description?: string | null
+                    external_provider_id?: string | null
                     id?: number
                     image_url?: string | null
                     priority?: string | null
                     property_id?: string | null
+                    space_location?: string | null
                     status?: string | null
                     title?: string
                 }
@@ -227,6 +233,13 @@ export type Database = {
                     {
                         foreignKeyName: "tickets_created_by_fkey"
                         columns: ["created_by"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "tickets_external_provider_id_fkey"
+                        columns: ["external_provider_id"]
                         isOneToOne: false
                         referencedRelation: "profiles"
                         referencedColumns: ["id"]

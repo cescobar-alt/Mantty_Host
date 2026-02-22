@@ -170,9 +170,9 @@ export const AdminUHView = () => {
                     {/* Quick Access */}
                     <div className="space-y-3">
                         <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] px-2 mb-4">Accesos Rápidos</h3>
-                        <QuickLink label="Base de Residentes" icon={<Users className="w-4 h-4" />} />
-                        <QuickLink label="Directorio de Proveedores" icon={<Shield className="w-4 h-4" />} />
-                        <QuickLink label="Informes Financieros" icon={<BarChart3 className="w-4 h-4" />} />
+                        <QuickLink label="Base de Residentes" icon={<Users className="w-4 h-4" />} path="/dashboard/users" />
+                        <QuickLink label="Directorio de Proveedores" icon={<Shield className="w-4 h-4" />} path="/dashboard/users" />
+                        <QuickLink label="Historial de Solicitudes" icon={<BarChart3 className="w-4 h-4" />} path="/dashboard/requests" />
                     </div>
                 </div>
             </div>
@@ -182,13 +182,13 @@ export const AdminUHView = () => {
                 <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] px-1 mb-3">Accesos Rápidos</h3>
                 <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory">
                     <div className="min-w-[160px] snap-start">
-                        <QuickLink label="Residentes" icon={<Users className="w-4 h-4" />} />
+                        <QuickLink label="Residentes" icon={<Users className="w-4 h-4" />} path="/dashboard/users" />
                     </div>
                     <div className="min-w-[160px] snap-start">
-                        <QuickLink label="Proveedores" icon={<Shield className="w-4 h-4" />} />
+                        <QuickLink label="Proveedores" icon={<Shield className="w-4 h-4" />} path="/dashboard/users" />
                     </div>
                     <div className="min-w-[160px] snap-start">
-                        <QuickLink label="Informes" icon={<BarChart3 className="w-4 h-4" />} />
+                        <QuickLink label="Historial" icon={<BarChart3 className="w-4 h-4" />} path="/dashboard/requests" />
                     </div>
                 </div>
             </div>

@@ -10,6 +10,8 @@ import { AdminUHView } from '../components/dashboard/AdminUHView';
 import { NewTicketPage } from './NewTicketPage';
 import { GestionSolicitudesPage } from './GestionSolicitudesPage';
 import { TicketDetailPage } from './TicketDetailPage';
+import { AlertasPage } from './AlertasPage';
+import { ProfilePage } from './ProfilePage';
 import LoadingScreen from '../components/LoadingScreen';
 
 const DashboardHome = () => {
@@ -67,8 +69,9 @@ export const DashboardPage = () => {
             <Routes>
                 <Route index element={<DashboardHome />} />
                 <Route path="new" element={<NewTicketPage />} />
-                <Route path="alerts" element={<DashboardHome />} />
+                <Route path="alerts" element={<AlertasPage />} />
                 <Route path="settings" element={<ConfiguracionPage />} />
+                <Route path="profile" element={<ProfilePage />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="requests" element={<GestionSolicitudesPage />} />
                 <Route path="tickets/:id" element={<TicketDetailPage />} />

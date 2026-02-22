@@ -70,7 +70,7 @@ export const GestionSolicitudesPage = () => {
         const matchesSearch = titleMatch || descMatch;
 
         const mappedStatus = t.status === 'pendiente' ? 'Pendientes' :
-            t.status === 'en_progreso' ? 'En Orograso' :
+            t.status === 'en_progreso' ? 'En Progreso' :
                 t.status === 'completado' ? 'Completados' : 'Todas';
 
         const matchesStatus = statusFilter === 'Todas' || mappedStatus === statusFilter;
