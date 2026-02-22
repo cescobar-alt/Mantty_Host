@@ -28,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const fetchUserProfile = async (userId: string) => {
         try {
+            console.log('Fetching profile for:', userId);
             const { data, error } = await supabase
                 .from('profiles')
                 .select('role, plan, property_id, extra_uh_capacity')
@@ -36,14 +37,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (error) {
                 if (error.code === 'PGRST116') {
-                    console.log('Profile not found yet, might be being created by trigger.');
+                    console.log('Profile not found yet, likely being initialized.');
                 } else {
                     console.error('Error fetching profile:', error);
                 }
+                setIsLoading(false); // Ensure loading stops even on error
                 return;
             }
 
             if (data) {
+                console.log('Profile fetched successfully:', data.role);
                 setRole(data.role as UserRole);
                 setPlan(data.plan as PlanType);
                 setPropertyId(data.property_id);
@@ -56,6 +59,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         } catch (error) {
             console.error('Unexpected error fetching profile:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -113,8 +118,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const signOut = async () => {
         setIsLoading(true);
-        localStorage.removeItem('mantty_property_id');
-        await supabase.auth.signOut();
+        try {
+            console.log('Attempting sign out...');
+            localStorage.removeItem('mantty_property_id');
+            await supabase.auth.signOut();
+
+            // Explicit state cleanup in case listener is slow
+            setUser(null);
+            setSession(null);
+            setRole(null);
+            setPlan(null);
+            setPropertyId(null);
+        } catch (err) {
+            console.error('Error during signOut:', err);
+        } finally {
+            // Give system a tiny moment to settle then force loading off
+            setTimeout(() => setIsLoading(false), 500);
+        }
     };
 
     return (
