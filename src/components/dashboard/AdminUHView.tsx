@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import {
     Plus,
     Users,
@@ -19,6 +20,7 @@ import { PropertySelector } from './PropertySelector';
 import { useTickets } from '../../hooks/useTickets';
 
 export const AdminUHView = () => {
+    const navigate = useNavigate();
     const { tickets, loading } = useTickets();
 
     const handleExport = () => {
@@ -70,7 +72,10 @@ export const AdminUHView = () => {
                         <Inbox className="w-4 h-4" />
                         <span className="hidden sm:inline">Gestionar</span>
                     </button>
-                    <button className="flex-1 sm:flex-none px-5 py-2 rounded-2xl mantty-gradient text-white font-bold text-sm hover:opacity-90 transition-all shadow-xl shadow-mantty-primary/25 flex items-center justify-center gap-2 active:scale-[0.98]">
+                    <button
+                        onClick={() => navigate('/dashboard/new')}
+                        className="flex-1 sm:flex-none px-5 py-2 rounded-2xl mantty-gradient text-white font-bold text-sm hover:opacity-90 transition-all shadow-xl shadow-mantty-primary/25 flex items-center justify-center gap-2 active:scale-[0.98]"
+                    >
                         <Plus className="w-4 h-4" />
                         Nueva Solicitud
                     </button>

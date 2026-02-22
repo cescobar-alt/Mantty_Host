@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import type { Tables } from '../types/database.types';
@@ -101,8 +101,51 @@ export const useTickets = () => {
         };
     }, [user, propertyId, role, queryClient, refetch]);
 
-    const error = queryError instanceof Error ? queryError.message : null;
+    const createTicketMutation = useMutation({
+        mutationFn: async (newTicket: Omit<Ticket, 'id' | 'created_at'>) => {
+            const { data, error } = await supabase
+                .from('tickets')
+                .insert([newTicket])
+                .select()
+                .single();
 
-    return { tickets, loading, error, refresh: refetch };
+            if (error) throw error;
+            return data as Ticket;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tickets', propertyId] });
+        },
+    });
+
+    const createTicket = async (ticketData: Omit<Ticket, 'id' | 'created_at' | 'created_by' | 'property_id' | 'status' | 'assigned_to'>) => {
+        if (!user || !propertyId) return { success: false, error: 'User or property not identified' };
+
+        try {
+            const result = await createTicketMutation.mutateAsync({
+                ...ticketData,
+                created_by: user.id,
+                property_id: propertyId,
+                status: 'pendiente',
+                assigned_to: null,
+            });
+            return { success: true, data: result };
+        } catch (err: any) {
+            console.error('Supabase Error details:', err);
+            const message = err?.message || 'Error creating ticket';
+            return { success: false, error: message };
+        }
+    };
+
+    const error = queryError instanceof Error ? queryError.message :
+        createTicketMutation.error instanceof Error ? createTicketMutation.error.message :
+            null;
+
+    return {
+        tickets,
+        loading: loading || createTicketMutation.isPending,
+        error,
+        createTicket,
+        refresh: refetch
+    };
 };
 

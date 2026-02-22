@@ -7,6 +7,7 @@ import { ProviderView } from '../components/dashboard/ProviderView';
 import { ConfiguracionPage } from './ConfiguracionPage';
 import { UserManagement } from '../components/UserManagement';
 import { AdminUHView } from '../components/dashboard/AdminUHView';
+import { NewTicketPage } from './NewTicketPage';
 import LoadingScreen from '../components/LoadingScreen';
 
 const DashboardHome = () => {
@@ -63,7 +64,7 @@ export const DashboardPage = () => {
         <DashboardLayout>
             <Routes>
                 <Route index element={<DashboardHome />} />
-                <Route path="new" element={<DashboardHome />} />
+                <Route path="new" element={<NewTicketPage />} />
                 <Route path="alerts" element={<DashboardHome />} />
                 <Route path="settings" element={<ConfiguracionPage />} />
                 <Route path="users" element={<UserManagement />} />

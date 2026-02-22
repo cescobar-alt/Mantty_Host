@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { Plus, Inbox, Clock } from 'lucide-react';
 
 export const ResidentView = () => {
+    const navigate = useNavigate();
     return (
         <div className="animate-mantty-fade-in py-10 text-center max-w-2xl mx-auto">
             <div className="w-20 h-20 bg-mantty-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner shadow-mantty-primary/10">
@@ -12,7 +14,10 @@ export const ResidentView = () => {
             </p>
 
             <div className="grid md:grid-cols-2 gap-6">
-                <button className="p-8 glassmorphism rounded-3xl border border-slate-100 dark:border-white/5 hover:border-mantty-primary/30 transition-all group shadow-sm">
+                <button
+                    onClick={() => navigate('/dashboard/new')}
+                    className="p-8 glassmorphism rounded-3xl border border-slate-100 dark:border-white/5 hover:border-mantty-primary/30 transition-all group shadow-sm text-left"
+                >
                     <div className="w-12 h-12 rounded-2xl bg-mantty-primary flex items-center justify-center mb-6 shadow-lg shadow-mantty-primary/20 group-hover:scale-110 transition-transform">
                         <Plus className="w-6 h-6 text-white" />
                     </div>
