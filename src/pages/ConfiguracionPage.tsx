@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { PLANS } from '../lib/business-rules';
 import { useProperties } from '../hooks/useProperties';
+import { PropertySelector } from '../components/dashboard/PropertySelector';
 
 type TabType = 'perfil' | 'propiedad' | 'plan';
 
@@ -115,6 +116,11 @@ export const ConfiguracionPage = () => {
 
     return (
         <div className="animate-mantty-fade-in max-w-4xl mx-auto pb-24 lg:pb-20">
+            {(role === 'admin_uh' || role === 'superadmin') && (
+                <div className="max-w-sm mb-8 sm:mb-12">
+                    <PropertySelector />
+                </div>
+            )}
             <header className="mb-6 sm:mb-10">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-2 transition-colors flex flex-wrap items-center gap-3">
                     Configuración
